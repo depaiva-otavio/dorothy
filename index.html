@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Código de Dorothy Vaughan — Missão Espacial</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            font-family: 'Courier New', Courier, monospace;
+            color: #e5f4ff;
+            background: #091523;
+            --cyan: #00ffcc;
+            --blue: #38bdf8;
+            --panel: rgba(12, 20, 37, 0.94);
+            --pink: #ff5577;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            width: 100%;
+            min-width: 320px;
+            height: 100vh;
+            height: 100dvh;
+            margin: 0;
+            overflow: hidden;
+            background: radial-gradient(ellipse at 50% 48%, #1a3048 0%, #102238 55%, #091523 100%);
+        }
+
+        button, input, select { font: inherit; }
+        button { color: inherit; }
+
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100dvh;
+            min-height: 0;
+            margin: 0;
+            overflow: hidden;
+            isolation: isolate;
+            border: 2px solid var(--cyan);
+            border-radius: 0;
+            background:
+                radial-gradient(1px 1px at 12% 21%, #fff 99%, transparent),
+                radial-gradient(1px 1px at 47% 13%, #fff 99%, transparent),
+                radial-gradient(1px 1px at 83% 31%, #fff 99%, transparent),
+                radial-gradient(1px 1px at 64% 78%, #fff 99%, transparent),
+                radial-gradient(1px 1px at 27% 89%, #fff 99%, transparent),
+                radial-gradient(1px 1px at 92% 67%, #fff 99%, transparent),
+                linear-gradient(rgba(9, 21, 35, 0.45), rgba(9, 21, 35, 0.52)),
+                url('img/apollo11-2-landscape.jpg') center / cover no-repeat;
+            box-shadow: 0 0 24px rgba(0, 255, 204, 0.18), inset 0 0 45px rgba(56, 189, 248, 0.05);
+        }
+
+        .game-container::after {
+            position: absolute;
+            z-index: 1;
+            pointer-events: none;
+            content: "";
+            inset: 0;
+            opacity: 0.12;
+            background: repeating-linear-gradient(transparent 0 3px, rgba(0, 0, 0, 0.45) 4px);
+        }
+
+        .terminal-header {
+            position: absolute;
+            z-index: 2;
+            top: 0;
+            left: 0;
+            display: flex;
+            width: 100%;
+            min-height: 52px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 22px;
+            border-bottom: 1px dashed rgba(56, 189, 248, 0.42);
+            color: var(--blue);
+            font-size: clamp(0.65rem, 1.3vw, 0.88rem);
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+        }
+
+        .terminal-header > span {
+            min-width: 0;
+            overflow: hidden;
+            flex: 1;
+            text-overflow: ellipsis;
+        }
+
+        .hud {
+            position: absolute;
+            z-index: 8;
+            bottom: 12px;
+            left: 50%;
+            display: flex;
+            width: min(640px, calc(100% - 32px));
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 7px 12px;
+            border: 1px solid rgba(0, 255, 204, 0.7);
+            border-radius: 8px;
+            background: rgba(7, 17, 30, 0.96);
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.18);
+            color: #d9e6fa;
+            font-size: 0.76rem;
+            white-space: nowrap;
+            transform: translateX(-50%);
+        }
+
+        .progress-track {
+            width: clamp(180px, 28vw, 340px);
+            height: 16px;
+            overflow: hidden;
+            border: 1px solid #ff1493;
+            border-radius: 10px;
+            background: #07111e;
+        }
+
+        .round-progress-fill {
+            width: 0;
+            height: 100%;
+            background: #ff1493;
+            box-shadow: 0 0 10px #ff1493;
+            transition: width 700ms ease;
+        }
+
+        .round-progress-percent { min-width: 3ch; }
+
+        .mission-status-cards {
+            position: absolute;
+            z-index: 8;
+            bottom: 68px;
+            left: 50%;
+            display: flex;
+            width: min(640px, calc(100% - 32px));
+            align-items: center;
+            justify-content: stretch;
+            gap: 8px;
+            transform: translateX(-50%);
+        }
+
+        .fuel-card, .route-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 12px;
+            border: 1px solid rgba(0, 255, 204, 0.7);
+            border-radius: 8px;
+            background: rgba(7, 17, 30, 0.96);
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.18);
+            color: #d9e6fa;
+            font-size: 0.76rem;
+            white-space: nowrap;
+        }
+
+        .fuel-card { flex-shrink: 0; }
+
+        .player-card {
+            position: absolute;
+            z-index: 8;
+            right: 16px;
+            bottom: 12px;
+            display: grid;
+            width: min(250px, 22vw);
+            gap: 8px;
+            padding: 10px 12px;
+            border: 1px solid rgba(0, 255, 204, 0.7);
+            border-radius: 8px;
+            background: rgba(7, 17, 30, 0.96);
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.18);
+            color: #d9e6fa;
+            font-size: 0.76rem;
+        }
+
+        .player-card-item {
+            display: grid;
+            min-width: 0;
+            gap: 2px;
+        }
+
+        .player-card-label {
+            color: var(--blue);
+            font-size: 0.64rem;
+        }
+
+        .player-card-value {
+            overflow-wrap: anywhere;
+            color: #fff;
+        }
+
+        .route-message {
+            min-width: 0;
+            flex: 1;
+            white-space: normal;
+        }
+
+        .route-message-label {
+            flex-shrink: 0;
+            color: #fff;
+        }
+
+        .route-message-text {
+            color: #00ff00;
+            animation: route-message-blink 1s steps(2, start) infinite;
+        }
+
+        .route-message-text.route-message--detour { color: #ffff00; }
+
+        @keyframes route-message-blink {
+            to { opacity: 0.35; }
+        }
+
+        .fuel-track {
+            width: 88px;
+            height: 10px;
+            overflow: hidden;
+            border: 1px solid #7dff74;
+            border-radius: 8px;
+            background: #07111e;
+        }
+
+        .fuel-fill {
+            width: 100%;
+            height: 100%;
+            background: #7dff74;
+            transition: width 400ms ease, background-color 400ms ease;
+        }
+
+        .flight-path {
+            position: absolute;
+            z-index: 3;
+            inset: 8% 0 0;
+            width: 100%;
+            height: 86%;
+            overflow: visible;
+            pointer-events: none;
+        }
+
+        .route-line {
+            fill: none;
+            stroke: #ff9c42;
+            stroke-dasharray: 5 11;
+            stroke-width: 5;
+        }
+
+        .route-traveled {
+            fill: none;
+            stroke: #ff0000;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 1;
+            stroke-dashoffset: 1;
+            pointer-events: none;
+        }
+
+        .route-glow {
+            fill: none;
+            stroke: #082747;
+            stroke-width: 12;
+        }
+
+        .earth {
+            fill: #1b6fb3;
+            stroke: #8de7ff;
+            stroke-width: 4;
+            filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.8));
+        }
+
+        .earth-land { fill: #6bd59a; }
+
+        #rocket {
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+        }
+
+        #rocket-flame {
+            transform-box: fill-box;
+            transform-origin: right center;
+            animation: rocket-flame-flicker 180ms ease-in-out infinite alternate;
+        }
+
+        @keyframes rocket-flame-flicker {
+            from { opacity: 0.7; transform: scaleX(0.78); }
+            to { opacity: 1; transform: scaleX(1.12); }
+        }
+
+        #parachute {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 450ms ease, visibility 450ms;
+        }
+
+        #parachute.deployed {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #meteor {
+            opacity: 0;
+            transition: opacity 150ms ease;
+        }
+
+        #meteor.in-flight { opacity: 1; }
+
+        .dorothy-sprite {
+            position: absolute;
+            z-index: 4;
+            bottom: 0;
+            left: 3%;
+            width: clamp(240px, 32vw, 440px);
+            max-height: 72%;
+            object-fit: contain;
+            object-position: bottom;
+            pointer-events: none;
+            filter: drop-shadow(0 0 14px rgba(255, 224, 92, 0.92)) drop-shadow(0 0 28px rgba(255, 196, 0, 0.55));
+        }
+
+        .character-speech {
+            position: absolute;
+            z-index: 6;
+            bottom: 41%;
+            left: 22px;
+            width: min(430px, 48vw);
+            padding: 10px 14px;
+            border: 2px solid #16283a;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 0 14px rgba(255, 255, 255, 0.24);
+            color: #111;
+            font-size: 0.88rem;
+            line-height: 1.35;
+            pointer-events: none;
+        }
+
+        .character-speech::after {
+            position: absolute;
+            bottom: -11px;
+            left: 200px;
+            width: 18px;
+            height: 18px;
+            border-right: 2px solid #16283a;
+            border-bottom: 2px solid #16283a;
+            background: #fff;
+            content: "";
+            transform: rotate(45deg);
+        }
+
+        .dialogue-panel {
+            position: absolute;
+            z-index: 5;
+            top: 62px;
+            left: 22px;
+            width: min(440px, 48%);
+            max-height: min(65%, 30dvh);
+            overflow-y: auto;
+            padding: 18px clamp(14px, 2.2vw, 24px);
+            border: 2px solid var(--cyan);
+            border-radius: 14px;
+            background: var(--panel);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.14);
+        }
+
+        .dialogue-panel h2 {
+            margin: 0 0 8px;
+            color: #fff;
+            font-size: clamp(1rem, 2.2vw, 1.35rem);
+            text-shadow: 0 0 9px rgba(0, 255, 204, 0.38);
+        }
+
+        .dialogue-meta {
+            margin: 0 0 10px;
+            color: var(--blue);
+            font-size: 0.78rem;
+        }
+
+        .dialogue-question {
+            margin: 0 0 14px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+        }
+
+        .btn-option {
+            min-height: 44px;
+            padding: 9px 11px;
+            border: 1px solid rgba(0, 255, 204, 0.75);
+            border-radius: 5px;
+            background: rgba(12, 30, 45, 0.92);
+            color: #eafffb;
+            cursor: pointer;
+            text-align: left;
+            transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+        }
+
+        .btn-option:hover:not(:disabled), .btn-option:focus-visible {
+            outline: none;
+            background: var(--cyan);
+            color: #061016;
+            transform: translateY(-2px);
+        }
+
+        .btn-option:disabled { cursor: default; }
+        .btn-option.wrong-answer { border-color: var(--pink); color: #ffb2c1; }
+        .btn-option.correct-answer { border-color: #7dff74; color: #7dff74; }
+
+        .dialogue-feedback {
+            margin: 14px 0 0;
+            color: #ffe58a;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        .title-screen, .end-screen {
+            position: absolute;
+            z-index: 10;
+            inset: 52px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(5, 9, 17, 0.82);
+            text-align: center;
+        }
+
+        .title-card, .end-card {
+            width: min(680px, 100%);
+            padding: clamp(24px, 5vw, 52px);
+            border: 2px solid var(--cyan);
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.94);
+            box-shadow: 0 0 24px rgba(0, 255, 204, 0.19);
+        }
+
+        .title-card h1 {
+            margin: 0 0 12px;
+            color: #fff;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            letter-spacing: 0.06em;
+            text-shadow: 0 0 11px rgba(0, 255, 204, 0.55);
+        }
+
+        .title-card p, .end-card p { line-height: 1.6; }
+        .subtitle { margin: 0 0 24px; color: var(--pink); }
+
+        .btn-start, .survey-submit, .btn-restart {
+            padding: 12px 22px;
+            border: 2px solid var(--cyan);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--cyan);
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 180ms ease, color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .btn-start:hover, .btn-restart:hover, .survey-submit:hover:not(:disabled) {
+            background: var(--cyan);
+            color: #071018;
+            box-shadow: 0 0 16px rgba(0, 255, 204, 0.55);
+        }
+
+        .credits-footer {
+            margin-top: 24px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            font-size: 0.82rem;
+        }
+
+        .credits-footer strong { color: #e2e8f0; }
+        .end-card h2 { margin-top: 0; color: var(--pink); }
+        .end-card.won h2 { color: var(--cyan); }
+        .end-card .btn-restart { margin-top: 10px; }
+        [hidden] { display: none !important; }
+
+        .survey-overlay {
+            position: fixed;
+            z-index: 30;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(3, 8, 20, 0.88);
+        }
+
+        .survey-panel {
+            width: min(520px, 100%);
+            max-height: 100%;
+            overflow-y: auto;
+            padding: 24px;
+            border: 2px solid #ffff00;
+            border-radius: 10px;
+            background: #0d1b2f;
+            box-shadow: 0 0 25px rgba(255, 255, 0, 0.3);
+        }
+
+        .survey-panel h2 { margin-top: 0; color: var(--cyan); }
+        .survey-panel > p { line-height: 1.5; }
+        .survey-field { display: grid; gap: 6px; margin: 12px 0; }
+        .survey-field input, .survey-field select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--blue);
+            border-radius: 5px;
+            background: #101c3a;
+            color: #fff;
+        }
+        .survey-field input:focus, .survey-field select:focus {
+            border-color: #ff8c00;
+            outline: 2px solid #ff8c00;
+            outline-offset: 1px;
+        }
+        .survey-submit { width: 100%; margin-top: 4px; }
+        #surveySubmit {
+            border-color: #e67e00;
+            background: #e67e00;
+            color: #000;
+        }
+        #surveySubmit:hover:not(:disabled) {
+            background: #cc6f00;
+            border-color: #cc6f00;
+            color: #000;
+            box-shadow: 0 0 16px rgba(230, 126, 0, 0.6);
+        }
+        .survey-submit:disabled { cursor: wait; opacity: 0.65; }
+        .survey-error { min-height: 1.4em; color: #ff8d8d; }
+        .survey-success { display: none; color: #7dff74; font-weight: bold; }
+
+        @media (max-width: 980px) {
+            .player-card {
+                z-index: 4;
+                top: 60px;
+                right: 12px;
+                bottom: auto;
+                width: min(230px, calc(48% - 12px));
+            }
+        }
+
+        @media (max-width: 680px) {
+            .terminal-header { min-height: 48px; padding: 8px 12px; }
+            .game-container {
+                background:
+                    linear-gradient(rgba(9, 21, 35, 0.45), rgba(9, 21, 35, 0.52)),
+                    url('img/apollo11-2-landscape.jpg') left center / auto 80% no-repeat,
+                    linear-gradient(#073a80, #073a80);
+            }
+            .hud {
+                bottom: 8px;
+                gap: 5px;
+                padding: 6px 9px;
+                font-size: 0.55rem;
+            }
+            .mission-status-cards {
+                bottom: 56px;
+                gap: 6px;
+            }
+            .hud, .mission-status-cards { width: calc(100% - 16px); }
+            .player-card {
+                top: 56px;
+                right: 8px;
+                width: min(190px, calc(52% - 12px));
+                gap: 5px;
+                padding: 7px 9px;
+                font-size: 0.55rem;
+            }
+            .player-card-label { font-size: 0.5rem; }
+            .fuel-card, .route-message {
+                gap: 5px;
+                padding: 6px 9px;
+                font-size: 0.55rem;
+            }
+            .fuel-track { width: 64px; height: 8px; }
+            .terminal-header > span { font-size: 0.56rem; }
+            .progress-track { width: clamp(120px, 36vw, 180px); height: 14px; }
+            .dialogue-panel {
+                top: 58px;
+                left: 12px;
+                width: calc(100% - 24px);
+                max-height: 53%;
+                padding: 15px;
+            }
+            .dorothy-sprite {
+                left: 2%;
+                width: clamp(210px, 58vw, 280px);
+                max-height: 55%;
+            }
+            .character-speech {
+                bottom: 20%;
+                left: 10px;
+                width: min(280px, calc(100% - 20px));
+                padding: 12px;
+                font-size: 0.76rem;
+            }
+            .character-speech::after { left: 92px; }
+            .flight-path { inset: 15% 0 0; height: 80%; }
+            .title-screen, .end-screen { inset: 48px 0 0; }
+            .title-card, .end-card { padding: 24px 18px; }
+            .credits-footer { font-size: 0.72rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            #skylab { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<main class="game-container">
+    <header class="terminal-header">
+        <span>&gt; SYSTEM_BOOT: NASA_WEST_AREA_COMPUTING // FORTRAN_MODULE_LOADED</span>
+    </header>
+    <div class="hud" aria-label="Progresso da missão">
+        <span id="scoreStatus" aria-live="polite">ACERTOS: 0 · ERROS: 0</span>
+        <div class="progress-track" role="progressbar" aria-label="Progresso da missão" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div id="roundProgressFill" class="round-progress-fill"></div>
+        </div>
+        <span id="roundProgressPercent" class="round-progress-percent">0%</span>
+    </div>
+    <div class="mission-status-cards">
+        <div class="route-message" aria-live="polite">
+            <span class="route-message-label">MENSAGEM:</span>
+            <span id="routeMessage" class="route-message-text">ROTA CORRETA</span>
+        </div>
+        <div class="fuel-card" aria-label="Combustível da nave">
+            <span>COMBUSTÍVEL</span>
+            <div class="fuel-track" role="progressbar" aria-label="Nível de combustível" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+                <div id="fuelFill" class="fuel-fill"></div>
+            </div>
+            <span id="fuelStatus" aria-live="polite">100%</span>
+        </div>
+    </div>
+    <aside class="player-card" aria-label="Estatísticas do jogador" aria-live="polite">
+        <div class="player-card-item">
+            <span class="player-card-label">NOME DO JOGADOR:</span>
+            <strong id="playerName" class="player-card-value">—</strong>
+        </div>
+        <div class="player-card-item">
+            <span class="player-card-label">ESCOLA:</span>
+            <strong id="playerSchool" class="player-card-value">—</strong>
+        </div>
+        <div class="player-card-item">
+            <span class="player-card-label">NÚMERO DE JOGADAS:</span>
+            <strong id="playerGames" class="player-card-value">0</strong>
+        </div>
+        <div class="player-card-item">
+            <span class="player-card-label">PONTOS ACUMULADOS:</span>
+            <strong id="playerPoints" class="player-card-value">0</strong>
+        </div>
+        <div class="player-card-item">
+            <span class="player-card-label">POSIÇÃO NO RANKING:</span>
+            <strong id="playerRank" class="player-card-value">Ainda sem partidas</strong>
+        </div>
+    </aside>
+
+    <svg class="flight-path" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+        <g id="skylab">
+            <animateMotion id="skylabMotion" dur="32s" repeatCount="indefinite" calcMode="linear" path="M -130 245 L 1130 245 L -130 245"></animateMotion>
+            <g transform="scale(0.65)" stroke-linejoin="round">
+                <g fill="#26364e" stroke="#9db5ca" stroke-width="2">
+                    <g transform="rotate(45)">
+                        <rect x="-10" y="-123" width="20" height="68"></rect>
+                        <path d="M-5-123v68 M5-123v68 M-10-112h20 M-10-101h20 M-10-90h20 M-10-79h20 M-10-68h20" stroke="#7091ad" stroke-width="1"></path>
+                    </g>
+                    <g transform="rotate(135)">
+                        <rect x="-10" y="-123" width="20" height="68"></rect>
+                        <path d="M-5-123v68 M5-123v68 M-10-112h20 M-10-101h20 M-10-90h20 M-10-79h20 M-10-68h20" stroke="#7091ad" stroke-width="1"></path>
+                    </g>
+                    <g transform="rotate(225)">
+                        <rect x="-10" y="-123" width="20" height="68"></rect>
+                        <path d="M-5-123v68 M5-123v68 M-10-112h20 M-10-101h20 M-10-90h20 M-10-79h20 M-10-68h20" stroke="#7091ad" stroke-width="1"></path>
+                    </g>
+                    <g transform="rotate(315)">
+                        <rect x="-10" y="-123" width="20" height="68"></rect>
+                        <path d="M-5-123v68 M5-123v68 M-10-112h20 M-10-101h20 M-10-90h20 M-10-79h20 M-10-68h20" stroke="#7091ad" stroke-width="1"></path>
+                    </g>
+                </g>
+                <path d="M-23 27h-77v34h77 M23 27h77v34H23" fill="#23354e" stroke="#b9c7ca" stroke-width="3"></path>
+                <path d="M-82 27v34 M-64 27v34 M-46 27v34 M-100 38h77 M-100 50h77 M46 27v34 M64 27v34 M82 27v34 M23 38h77 M23 50h77" fill="none" stroke="#7591a6" stroke-width="1.5"></path>
+                <path d="M-20-70h40v24h-40z" fill="#d5d5cf" stroke="#596875" stroke-width="2"></path>
+                <path d="M-18-46h36v20h-36z" fill="#a9b2b3" stroke="#596875" stroke-width="2"></path>
+                <path d="M-19-26h38v55h-38z" fill="#d0d0c8" stroke="#596875" stroke-width="2"></path>
+                <path d="M-19-8h38v20h-38z" fill="#e3b72f" stroke="#b38b18" stroke-width="2"></path>
+                <path d="M-15-8v20 M-9-8v20 M-3-8v20 M3-8v20 M9-8v20 M15-8v20" stroke="#f8d951" stroke-width="1.5"></path>
+                <rect x="-20" y="29" width="40" height="24" rx="3" fill="#b7c0be" stroke="#596875" stroke-width="2"></rect>
+                <path d="M-17 53h34l-5 12h-24z" fill="#e0e1da" stroke="#596875" stroke-width="2"></path>
+                <circle cx="0" cy="-37" r="15" fill="#bec7c8" stroke="#596875" stroke-width="3"></circle>
+                <circle cx="0" cy="-37" r="8" fill="#8396a1" stroke="#eef1e8" stroke-width="2"></circle>
+                <path d="M-8-72l-5-12 13 2 13-2-5 12z" fill="#d1d2cb" stroke="#596875" stroke-width="2"></path>
+                <path d="M-3-84v-11 M3-84v-11" stroke="#596875" stroke-width="2"></path>
+            </g>
+        </g>
+        <path id="flightRoute" class="route-glow" d="M 280 470 C 380 190, 455 540, 560 340 S 745 185, 910 300"></path>
+        <path class="route-line" d="M 280 470 C 380 190, 455 540, 560 340 S 745 185, 910 300"></path>
+        <path id="routeTraveled" class="route-traveled" d="M 280 470 C 380 190, 455 540, 560 340 S 745 185, 910 300"></path>
+        <g id="earth" transform="translate(910 300)">
+            <circle class="earth" r="48"></circle>
+            <path class="earth-land" d="M-27-22l16-12 12 8 2 13-10 6-4 16-12 5-8-13 4-10-8-5z M13 8l16-7 10 9-7 16-13 3-8-10z"></path>
+            <text x="0" y="72" fill="#d8f7ff" font-size="20" text-anchor="middle" font-family="monospace">TERRA</text>
+        </g>
+        <g id="rocket">
+            <g id="rocket-flame">
+                <path d="M-27-7 C-39-6 -45-2 -57 0 C-45 2 -39 6 -27 7 Z" fill="#ff6b35"></path>
+                <path d="M-27-4 C-36-3 -40-1 -47 0 C-40 1 -36 3 -27 4 Z" fill="#ffe58a"></path>
+            </g>
+            <g id="parachute">
+                <path d="M-40-88 Q-34-128 0-134 Q34-128 40-88 Q0-99-40-88Z" fill="#ff5577" stroke="#fff" stroke-width="2"></path>
+                <path d="M0-133V-94 M-26-119L-13-96 M26-119L13-96" fill="none" stroke="#fff" stroke-width="2"></path>
+                <path d="M-40-88L-12-17 M40-88L12-17" fill="none" stroke="#e5f4ff" stroke-width="2"></path>
+            </g>
+            <path d="M-27-15 L-20-20 L-9-18 L17-8 Q27 0 17 8 L-9 18 L-20 20 L-27 15 Z" fill="#e6e8e7" stroke="#173047" stroke-width="2"></path>
+            <path d="M-27-15 L-20-20 L-9-18 L-6-14 L-15-10 L-20 0 L-15 10 L-6 14 L-9 18 L-20 20 L-27 15 Z" fill="#ff9c42" stroke="#173047" stroke-width="1.5"></path>
+            <path d="M-6-14 L17-8 Q27 0 17 8 L-6 14 L-15 10 L-20 0 L-15-10 Z" fill="#d9e1e5" stroke="#38bdf8" stroke-width="1.5"></path>
+            <path d="M-11-9 L-4-7 L-5-3 L-13-4 Z M1-6 L8-4 L7 0 L0-1 Z M1 6 L8 4 L7 0 L0 1 Z" fill="#173047" stroke="#8de7ff" stroke-width="1"></path>
+            <path d="M-19-10 L-14-7 M-19 10 L-14 7 M-7-14 L-6 14" fill="none" stroke="#fff" stroke-width="1.5"></path>
+            <path d="M17-8 Q27 0 17 8" fill="none" stroke="#ff9c42" stroke-width="2"></path>
+            <path d="M19-3 L25-7 M20 0 L28 0 M19 3 L25 7" fill="none" stroke="#173047" stroke-width="1.5"></path>
+        </g>
+        <g id="meteor">
+            <animateMotion id="meteorMotion" dur="1.2s" fill="freeze" path="M 320 -220 L 0 0"></animateMotion>
+            <path d="M-48 4 Q-75 0-92-18 Q-70 8-52 17Z" fill="#ff6b35" opacity=".7"></path>
+            <path d="M-28-9 Q-15-32 9-25 Q34-27 38-3 Q48 18 23 29 Q-4 37-20 20 Q-37 10-28-9Z" fill="#a96e59" stroke="#ff9b70" stroke-width="4"></path>
+            <circle cx="-10" cy="-4" r="6" fill="#754638"></circle>
+            <circle cx="17" cy="10" r="8" fill="#754638"></circle>
+            <circle cx="13" cy="-14" r="4" fill="#754638"></circle>
+        </g>
+    </svg>
+
+    <img class="dorothy-sprite" src="img/dorothyvaughan.png" alt="Dorothy Vaughan">
+    <p id="characterSpeech" class="character-speech" aria-live="polite" hidden></p>
+
+    <section id="dialoguePanel" class="dialogue-panel" aria-live="polite" hidden>
+        <h2 id="modalTitle">Desafio de Código</h2>
+        <p id="questionProgress" class="dialogue-meta"></p>
+        <p id="modalDesc" class="dialogue-question"></p>
+        <div class="options" id="modalOptions"></div>
+        <p id="dialogueFeedback" class="dialogue-feedback" role="status" hidden></p>
+    </section>
+
+    <section id="titleScreen" class="title-screen">
+        <div class="title-card">
+            <h1>O CÓDIGO DE DOROTHY VAUGHAN</h1>
+            <p class="subtitle">A Revolução dos Números na Era Espacial</p>
+            <p>Traga a nave pra Terra com suas respostas.</p>
+            <button id="startButton" class="btn-start" type="button">[ PRESSIONE PARA INICIAR ]</button>
+            <footer class="credits-footer">
+                Desenvolvido por: <strong>Subsecretaria de Ciência e Tecnologia de Arraial do Cabo</strong>
+            </footer>
+        </div>
+    </section>
+
+    <section id="endScreen" class="end-screen" hidden>
+        <div id="endCard" class="end-card">
+            <h2 id="endTitle"></h2>
+            <p id="endMessage"></p>
+            <button id="restartButton" class="btn-restart" type="button">[ VOLTAR AO INÍCIO ]</button>
+        </div>
+    </section>
+</main>
+
+<div id="surveyModal" class="survey-overlay" role="dialog" aria-modal="true" aria-labelledby="surveyTitle" aria-hidden="false">
+    <form id="surveyForm" class="survey-panel">
+        <h2 id="surveyTitle">REGISTRO DO GAMER</h2>
+        <p>Registre-se para iniciar o jogo.</p>
+        <div class="survey-fields">
+            <label class="survey-field">
+                <span>Qual é o seu nome?</span>
+                <input name="name" type="text" maxlength="120" autocomplete="name" required>
+            </label>
+            <label class="survey-field">
+                <span>Qual é a sua escola?</span>
+                <input name="school" type="text" maxlength="120" required>
+            </label>
+            <label class="survey-field">
+                <span>Em que ano você estuda?</span>
+                <input name="grade" type="text" maxlength="120" required>
+            </label>
+            <label class="survey-field">
+                <span>Gostou desse jogo?</span>
+                <select name="liked_game" required>
+                    <option value="">Escolha</option>
+                    <option value="S">Sim</option>
+                    <option value="N">Não</option>
+                </select>
+            </label>
+            <label class="survey-field">
+                <span>Que nota você dá para a Expo XP?</span>
+                <select name="expo_xp_rating" required>
+                    <option value="">Escolha de 0 a 10</option>
+                    <option value="10">10</option>
+                    <option value="9">9</option>
+                    <option value="8">8</option>
+                    <option value="7">7</option>
+                    <option value="6">6</option>
+                    <option value="5">5</option>
+                    <option value="4">4</option>
+                    <option value="3">3</option>
+                    <option value="2">2</option>
+                    <option value="1">1</option>
+                    <option value="0">0</option>
+                </select>
+            </label>
+        </div>
+        <button id="surveySubmit" class="survey-submit" type="submit">CADASTRAR JOGADOR</button>
+        <p id="surveyError" class="survey-error" role="alert"></p>
+    </form>
+</div>
+
+<script>
+    const questionBank = [
+        { category: "Introdução à microinformática", title: "O computador", desc: "Para que serve um computador?", options: ["Para ajudar em tarefas", "Para lavar roupas", "Para cozinhar sopa", "Para regar plantas"], correct: 0 },
+        { category: "Introdução à microinformática", title: "A tela", desc: "Onde vemos as imagens do computador?", options: ["No teclado", "No monitor", "No mouse", "Na impressora"], correct: 1 },
+        { category: "Introdução à microinformática", title: "O teclado", desc: "Qual peça usamos para escrever?", options: ["A caixa de som", "O monitor", "O teclado", "O carregador"], correct: 2 },
+        { category: "Introdução à microinformática", title: "O mouse", desc: "O que usamos para mover a setinha na tela?", options: ["O mouse", "A impressora", "O alto-falante", "A webcam"], correct: 0 },
+        { category: "Introdução à microinformática", title: "O processador", desc: "Qual peça ajuda o computador a fazer tarefas?", options: ["O papel", "O processador", "O fone", "A cadeira"], correct: 1 },
+        { category: "Introdução à microinformática", title: "A impressora", desc: "Qual aparelho coloca textos no papel?", options: ["O monitor", "O teclado", "A impressora", "O mouse"], correct: 2 },
+        { category: "Introdução à microinformática", title: "O som", desc: "Qual peça toca sons do computador?", options: ["A caixa de som", "O teclado", "A webcam", "O carregador"], correct: 0 },
+        { category: "Introdução à microinformática", title: "O fone", desc: "O que usamos para ouvir sem incomodar os outros?", options: ["A impressora", "O fone de ouvido", "O mouse", "O monitor"], correct: 1 },
+        { category: "Introdução à microinformática", title: "O microfone", desc: "Qual aparelho usamos para gravar a voz?", options: ["O monitor", "O teclado", "O microfone", "A impressora"], correct: 2 },
+        { category: "Introdução à microinformática", title: "A webcam", desc: "Qual câmera pode mostrar nosso rosto no computador?", options: ["A webcam", "O mouse", "A caixa de som", "O teclado"], correct: 0 },
+        { category: "Introdução à microinformática", title: "O notebook", desc: "Qual computador podemos levar na mochila?", options: ["O monitor", "O notebook", "A impressora", "O teclado"], correct: 1 },
+        { category: "Introdução à microinformática", title: "O tablet", desc: "Em qual aparelho podemos tocar na tela para escolher?", options: ["Na impressora", "No mouse", "No tablet", "Na caixa de som"], correct: 2 },
+        { category: "Introdução à microinformática", title: "A tela sensível ao toque", desc: "Como escolhemos algo numa tela de toque?", options: ["Tocando nela com o dedo", "Batendo com um lápis", "Assoprando", "Sacudindo o aparelho"], correct: 0 },
+        { category: "Introdução à microinformática", title: "As peças", desc: "O que é uma parte física do computador?", options: ["Um desenho", "O teclado", "Uma música", "Uma ideia"], correct: 1 },
+        { category: "Introdução à microinformática", title: "Os programas", desc: "O que usamos para fazer tarefas no computador?", options: ["Os cabos", "As mesas", "Os programas", "As paredes"], correct: 2 },
+        { category: "Introdução à microinformática", title: "O desenho de um programa", desc: "O que um ícone na tela pode representar?", options: ["Um programa", "Um copo de água", "Uma janela de verdade", "Uma cadeira"], correct: 0 },
+        { category: "Introdução à microinformática", title: "Um clique", desc: "O que fazemos para escolher um botão na tela?", options: ["Desligamos o monitor", "Clicamos nele", "Tiramos o teclado", "Fechamos os olhos"], correct: 1 },
+        { category: "Introdução à microinformática", title: "A rodinha do mouse", desc: "Para que serve a rodinha do mouse?", options: ["Para tocar música", "Para imprimir", "Para subir e descer a página", "Para escrever letras"], correct: 2 },
+        { category: "Introdução à microinformática", title: "A barra de espaço", desc: "Qual tecla deixa um espaço entre as palavras?", options: ["A barra de espaço", "A tecla do mouse", "A tecla da tela", "A tecla de som"], correct: 0 },
+        { category: "Introdução à microinformática", title: "A tecla Enter", desc: "Qual tecla pode começar uma linha nova?", options: ["Shift", "Enter", "Esc", "Caps Lock"], correct: 1 },
+        { category: "Introdução à microinformática", title: "Apagar uma letra", desc: "Qual tecla apaga a letra que ficou antes?", options: ["Enter", "Espaço", "Backspace", "Tab"], correct: 2 },
+        { category: "Introdução à microinformática", title: "Os números", desc: "Onde digitamos números no computador?", options: ["No teclado", "No monitor", "No mouse", "Na caixa de som"], correct: 0 },
+        { category: "Introdução à microinformática", title: "Guardar o trabalho", desc: "O que fazemos para não perder um desenho?", options: ["Fechamos os olhos", "Salvamos o arquivo", "Desligamos da tomada", "Viramos o monitor"], correct: 1 },
+        { category: "Introdução à microinformática", title: "Um arquivo", desc: "O que pode ficar guardado no computador?", options: ["Um brinquedo de verdade", "Uma banana", "Um texto ou desenho", "Uma cadeira"], correct: 2 },
+        { category: "Introdução à microinformática", title: "Uma pasta", desc: "Para que serve uma pasta no computador?", options: ["Para organizar arquivos", "Para lavar o teclado", "Para tocar sons", "Para mover a setinha"], correct: 0 },
+        { category: "Introdução à microinformática", title: "A área de trabalho", desc: "O que aparece na tela quando o computador começa?", options: ["Uma folha de papel", "A área de trabalho", "Uma janela de casa", "Uma televisão desligada"], correct: 1 },
+        { category: "Introdução à microinformática", title: "A setinha", desc: "Como movemos o ponteiro na tela?", options: ["Com a impressora", "Com a caixa de som", "Com o mouse", "Com o carregador"], correct: 2 },
+        { category: "Introdução à microinformática", title: "Desenhar", desc: "Qual programa pode ajudar a fazer desenhos?", options: ["Um programa de pintura", "Um despertador", "Uma calculadora de mesa", "Uma lanterna"], correct: 0 },
+        { category: "Introdução à microinformática", title: "Fazer contas", desc: "Qual programa pode ajudar com contas?", options: ["A câmera", "A calculadora", "O microfone", "O teclado"], correct: 1 },
+        { category: "Introdução à microinformática", title: "Ver páginas na internet", desc: "Qual programa usamos para abrir sites?", options: ["A calculadora", "A câmera", "O navegador", "A lixeira"], correct: 2 },
+        { category: "Introdução à microinformática", title: "A internet", desc: "O que a internet ajuda a fazer?", options: ["Encontrar informações e conversar", "Lavar a tela", "Carregar a mochila", "Apagar o teclado"], correct: 0 },
+        { category: "Introdução à microinformática", title: "O e-mail", desc: "Para que serve um e-mail?", options: ["Para desenhar no papel", "Para enviar mensagens", "Para ligar o computador", "Para limpar o mouse"], correct: 1 },
+        { category: "Introdução à microinformática", title: "A senha", desc: "Com quem devemos compartilhar nossa senha?", options: ["Com todo mundo", "Com pessoas na rua", "Só com um adulto de confiança", "Com quem pedir na internet"], correct: 2 },
+        { category: "Introdução à microinformática", title: "Antes de desligar", desc: "O que fazemos para guardar o que estamos criando?", options: ["Tiramos o monitor", "Salvamos o trabalho", "Molhamos o teclado", "Escondemos o mouse"], correct: 1 },
+        { category: "Introdução à microinformática", title: "Desligar com cuidado", desc: "Como desligamos o computador direitinho?", options: ["Puxando todos os fios", "Batendo no teclado", "Usando a opção de desligar", "Fechando os olhos"], correct: 2 },
+        { category: "Introdução à microinformática", title: "O carregador", desc: "O que ajuda a carregar a bateria do notebook?", options: ["O carregador", "O mouse", "O papel", "A impressora"], correct: 0 },
+        { category: "Introdução à microinformática", title: "A bateria", desc: "O que dá energia ao notebook quando está fora da tomada?", options: ["A webcam", "A bateria", "O teclado", "O papel"], correct: 1 },
+        { category: "Introdução à microinformática", title: "A entrada USB", desc: "Onde podemos conectar alguns aparelhos e cabos?", options: ["Na tela", "Na tecla Enter", "Na entrada USB", "Na caixa de som"], correct: 2 },
+        { category: "Introdução à microinformática", title: "Ligar o computador", desc: "O que apertamos para ligar o computador?", options: ["O botão de ligar", "A tecla de espaço", "A rodinha do mouse", "A folha da impressora"], correct: 0 },
+        { category: "Introdução à microinformática", title: "O computador de mesa", desc: "Qual peça mostra imagens num computador de mesa?", options: ["O mouse", "O monitor", "O carregador", "O microfone"], correct: 1 },
+        { category: "Introdução à microinformática", title: "Cuidar do computador", desc: "Onde devemos deixar copos e sucos?", options: ["Em cima do teclado", "Perto dos cabos", "Longe do computador", "Sobre o notebook"], correct: 2 },
+        { category: "Introdução à microinformática", title: "Limpar a tela", desc: "Como um adulto pode limpar a tela com cuidado?", options: ["Com um pano macio e seco", "Com água derramada", "Com uma colher", "Com o dedo sujo"], correct: 0 },
+        { category: "Introdução à microinformática", title: "Computador molhado", desc: "O que fazer se cair água no computador?", options: ["Continuar usando", "Chamar um adulto", "Balançar o aparelho", "Apertar muitas teclas"], correct: 1 },
+        { category: "Introdução à microinformática", title: "Descansar os olhos", desc: "O que é bom fazer depois de um tempo na tela?", options: ["Chegar mais perto", "Olhar só para a tela", "Fazer uma pausa", "Aumentar o som"], correct: 2 },
+        { category: "Introdução à microinformática", title: "Um documento", desc: "O que podemos escrever num documento?", options: ["Uma história", "Uma música tocando", "Uma cadeira", "Um cabo"], correct: 0 },
+        { category: "Introdução à microinformática", title: "Uma foto", desc: "Onde podemos guardar uma foto no computador?", options: ["No teclado", "Num arquivo", "No mouse", "No carregador"], correct: 1 },
+        { category: "Introdução à microinformática", title: "Copiar um texto", desc: "O que significa copiar um texto?", options: ["Apagar a tela", "Desligar o computador", "Fazer outra cópia do texto", "Tirar uma foto"], correct: 2 },
+        { category: "Introdução à microinformática", title: "A lixeira", desc: "Onde costumam ficar arquivos que apagamos?", options: ["Na lixeira do computador", "No monitor", "No teclado", "No navegador"], correct: 0 },
+        { category: "Introdução à microinformática", title: "Aprender com o computador", desc: "O que podemos fazer usando um computador?", options: ["Crescer uma planta", "Aprender e criar desenhos", "Lavar as mãos", "Fazer o almoço"], correct: 1 }
+    ];
+
+    const dorothyCuriosities = [
+        "Curiosidade: nasci em Kansas City, em 1910.",
+        "Curiosidade: estudei matemática na Wilberforce.",
+        "Curiosidade: fui professora de matemática.",
+        "Curiosidade: comecei a trabalhar em Langley em 1943.",
+        "Curiosidade: a NACA pesquisava aviões.",
+        "Curiosidade: na West Area, mulheres calculavam trajetórias.",
+        "Curiosidade: em 1949, liderei a West Area Computing.",
+        "Curiosidade: fui a primeira supervisora negra da NACA.",
+        "Curiosidade: a NASA substituiu a NACA em 1958.",
+        "Curiosidade: aprendi FORTRAN para usar computadores.",
+        "Curiosidade: ensinei programação às minhas colegas.",
+        "Curiosidade: ajudei no programa de foguetes Scout.",
+        "Curiosidade: trabalhei na NACA e na NASA por quase 30 anos.",
+        "Curiosidade: me aposentei da NASA em 1971.",
+        "Curiosidade: abri caminhos para mulheres negras na ciência.",
+        "Curiosidade: vivi até os 98 anos."
+    ];
+
+    const titleScreen = document.getElementById('titleScreen');
+    const dialoguePanel = document.getElementById('dialoguePanel');
+    const characterSpeech = document.getElementById('characterSpeech');
+    const endScreen = document.getElementById('endScreen');
+    const endCard = document.getElementById('endCard');
+    const flightRoute = document.getElementById('flightRoute');
+    const routeTraveled = document.getElementById('routeTraveled');
+    const rocket = document.getElementById('rocket');
+    const parachute = document.getElementById('parachute');
+    const meteor = document.getElementById('meteor');
+    const meteorMotion = document.getElementById('meteorMotion');
+    const skylabMotion = document.getElementById('skylabMotion');
+    let activeQuestion = null;
+    let answerLocked = false;
+    let nextQuestionIndex = 0;
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let fuelLevel = 100;
+    let currentPlayerId = null;
+    let gameResultSaved = false;
+    const apiBaseUrl = 'http://127.0.0.1:8000';
+    let rocketProgress = 0;
+    let rocketDeviation = 0;
+    let rocketAnimationFrame = 0;
+    let characterSpeechTimeout = 0;
+    let questionTransitionTimeout = 0;
+    let nextCuriosityIndex = 0;
+    const questionsPerRound = 4;
+    const playedQuestionOrdersKey = 'dorothyVaughanPlayedQuestionOrders';
+    const maximumRememberedRounds = 49;
+
+    function shuffleItems(items) {
+        const shuffledItems = [...items];
+        for (let index = shuffledItems.length - 1; index > 0; index--) {
+            const randomIndex = Math.floor(Math.random() * (index + 1));
+            [shuffledItems[index], shuffledItems[randomIndex]] = [shuffledItems[randomIndex], shuffledItems[index]];
+        }
+        return shuffledItems;
+    }
+
+    function questionOrderKey(questions) {
+        return JSON.stringify(questions.map((question) => question.title));
+    }
+
+    function loadPlayedQuestionOrders() {
+        const storedOrders = localStorage.getItem(playedQuestionOrdersKey);
+        if (storedOrders === null) return [];
+
+        let parsedOrders;
+        try {
+            parsedOrders = JSON.parse(storedOrders);
+        } catch {
+            throw new Error('O histórico das partidas está inválido. Limpe os dados deste site para continuar.');
+        }
+        if (!Array.isArray(parsedOrders) || !parsedOrders.every((order) => typeof order === 'string')) {
+            throw new Error('O histórico das partidas está inválido. Limpe os dados deste site para continuar.');
+        }
+        return parsedOrders;
+    }
+
+    function createQuestionOrder(playedOrders = []) {
+        const totalOrders = questionBank.length * (questionBank.length - 1) * (questionBank.length - 2) * (questionBank.length - 3);
+        const firstOrder = Math.floor(Math.random() * totalOrders);
+
+        for (let attempt = 0; attempt <= playedOrders.length; attempt++) {
+            let orderIndex = (firstOrder + attempt) % totalOrders;
+            const remainingIndices = questionBank.map((_, index) => index);
+            const selectedIndices = [];
+            for (let position = 0; position < questionsPerRound; position++) {
+                const selectedPosition = orderIndex % remainingIndices.length;
+                orderIndex = Math.floor(orderIndex / remainingIndices.length);
+                selectedIndices.push(remainingIndices.splice(selectedPosition, 1)[0]);
+            }
+            const questions = selectedIndices.map((index) => questionBank[index]);
+            if (!playedOrders.includes(questionOrderKey(questions))) return questions;
+        }
+
+        throw new Error('Não foi possível criar uma combinação inédita de perguntas.');
+    }
+
+    function reserveQuestionOrder() {
+        const playedOrders = loadPlayedQuestionOrders();
+        let orderKey = questionOrderKey(questionOrder);
+        if (playedOrders.includes(orderKey)) {
+            questionOrder = createQuestionOrder(playedOrders);
+            orderKey = questionOrderKey(questionOrder);
+        }
+
+        playedOrders.push(orderKey);
+        localStorage.setItem(
+            playedQuestionOrdersKey,
+            JSON.stringify(playedOrders.slice(-maximumRememberedRounds))
+        );
+    }
+
+    let questionOrder = createQuestionOrder();
+    let curiosityOrder = shuffleItems(dorothyCuriosities);
+
+    function updateRouteForViewport() {
+        const isNarrow = window.matchMedia('(max-width: 680px)').matches;
+        const routePath = isNarrow
+            ? 'M 145 520 C 175 455, 180 410, 205 405 C 230 400, 240 485, 265 455 C 290 425, 285 345, 310 320 C 335 295, 320 220, 335 180 C 350 140, 325 60, 335 -13'
+            : 'M 280 520 C 320 450, 340 410, 390 420 C 440 430, 455 520, 510 490 C 565 460, 570 350, 630 340 C 690 330, 715 420, 770 380 C 825 340, 825 210, 870 175 C 900 150, 905 85, 920 43';
+        const svg = flightRoute.ownerSVGElement;
+        flightRoute.setAttribute('d', routePath);
+        document.querySelector('.route-line').setAttribute('d', routePath);
+        routeTraveled.setAttribute('d', routePath);
+        skylabMotion.setAttribute('path', isNarrow
+            ? 'M -130 240 L 530 240 L -130 240'
+            : 'M -130 245 L 1130 245 L -130 245');
+        skylabMotion.beginElement();
+        const routeLength = flightRoute.getTotalLength();
+        routeTraveled.style.strokeDasharray = String(routeLength);
+        routeTraveled.style.strokeDashoffset = String(routeLength * (1 - rocketProgress));
+        svg.setAttribute('viewBox', isNarrow ? '0 0 400 600' : '0 0 1000 600');
+        document.getElementById('earth').setAttribute('transform', `translate(${isNarrow ? 335 : 920} ${isNarrow ? -13 : 43})`);
+        placeRocket(rocketProgress);
+    }
+
+    function getRoutePoint(progress) {
+        const routeLength = flightRoute.getTotalLength();
+        const point = flightRoute.getPointAtLength(routeLength * Math.max(0, Math.min(progress, 1)));
+        const nextPoint = flightRoute.getPointAtLength(Math.min(routeLength, routeLength * Math.max(0, Math.min(progress, 1)) + 1));
+        const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x) * 180 / Math.PI;
+        return { point, angle };
+    }
+
+    function placeRocket(progress) {
+        const { point, angle } = getRoutePoint(progress);
+        const radians = (angle + 90) * Math.PI / 180;
+        const offsetX = Math.cos(radians) * rocketDeviation;
+        const offsetY = Math.sin(radians) * rocketDeviation;
+        rocket.setAttribute('transform', `translate(${point.x + offsetX} ${point.y + offsetY}) rotate(${angle})`);
+        const routeLength = flightRoute.getTotalLength();
+        routeTraveled.style.strokeDashoffset = String(routeLength * (1 - progress));
+    }
+
+    function animateRocketTo(progress, deviation = 0, duration = 900) {
+        const startProgress = rocketProgress;
+        const distance = progress - startProgress;
+        const startDeviation = rocketDeviation;
+        let startTime = null;
+
+        window.cancelAnimationFrame(rocketAnimationFrame);
+        const animate = (timestamp) => {
+            if (startTime === null) startTime = timestamp;
+            const fraction = Math.min((timestamp - startTime) / duration, 1);
+            rocketProgress = startProgress + distance * fraction;
+            rocketDeviation = startDeviation + (deviation - startDeviation) * fraction;
+            placeRocket(rocketProgress);
+
+            if (fraction < 1) {
+                rocketAnimationFrame = window.requestAnimationFrame(animate);
+            }
+        };
+
+        rocketAnimationFrame = window.requestAnimationFrame(animate);
+    }
+
+    function updateRoundProgress() {
+        const progress = Math.round((nextQuestionIndex / questionOrder.length) * 100);
+        document.getElementById('roundProgressFill').style.width = `${progress}%`;
+        document.querySelector('.progress-track').setAttribute('aria-valuenow', String(progress));
+        document.getElementById('roundProgressPercent').textContent = `${progress}%`;
+        document.getElementById('scoreStatus').textContent = `ACERTOS: ${correctAnswers} · ERROS: ${wrongAnswers}`;
+    }
+
+    function updateFuelLevel() {
+        const fuelFill = document.getElementById('fuelFill');
+        const fuelTrack = fuelFill.parentElement;
+        fuelFill.style.width = `${fuelLevel}%`;
+        fuelFill.style.backgroundColor = fuelLevel <= 25 ? '#ff5577' : fuelLevel <= 50 ? '#ffe58a' : '#7dff74';
+        fuelTrack.setAttribute('aria-valuenow', String(fuelLevel));
+        document.getElementById('fuelStatus').textContent = `${fuelLevel}%`;
+    }
+
+    function displayPlayerRanking(ranking) {
+        document.getElementById('playerName').textContent = ranking.name;
+        document.getElementById('playerSchool').textContent = ranking.school;
+        document.getElementById('playerGames').textContent = String(ranking.games);
+        document.getElementById('playerPoints').textContent = String(ranking.points).padStart(3, '0');
+        document.getElementById('playerRank').textContent = ranking.position
+            ? `#${ranking.position}`
+            : 'Ainda sem partidas';
+    }
+
+    async function readApiResponse(response, action) {
+        const responseText = await response.text();
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch {
+            throw new Error(`Resposta inválida do servidor ao ${action}. Confirme que python3 server.py está executando na porta 8000.`);
+        }
+
+        if (!response.ok) {
+            throw new Error(result?.error || `Não foi possível ${action} (HTTP ${response.status}).`);
+        }
+        return result;
+    }
+
+    async function loadPlayerRanking() {
+        if (!currentPlayerId) return;
+
+        const response = await fetch(`${apiBaseUrl}/api/player-ranking/${currentPlayerId}`);
+        const result = await readApiResponse(response, 'consultar o ranking');
+        displayPlayerRanking(result);
+    }
+
+    async function saveGameResult() {
+        if (!currentPlayerId || gameResultSaved) return;
+
+        const response = await fetch(`${apiBaseUrl}/api/game-results`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ player_id: currentPlayerId, points: correctAnswers })
+        });
+        const result = await readApiResponse(response, 'salvar a pontuação');
+        if (!result?.ranking) {
+            throw new Error('O servidor não retornou a classificação atualizada.');
+        }
+        gameResultSaved = true;
+        displayPlayerRanking(result.ranking);
+    }
+
+    function updateRouteMessage(detoured) {
+        const routeMessage = document.getElementById('routeMessage');
+        routeMessage.textContent = detoured
+            ? 'DESVIO DE ROTA - RESPOSTA ERRADA!!!'
+            : 'ROTA CORRETA';
+        routeMessage.classList.toggle('route-message--detour', detoured);
+    }
+
+    window.addEventListener('resize', updateRouteForViewport);
+    updateRouteForViewport();
+    updateRoundProgress();
+    updateFuelLevel();
+
+    function startMission() {
+        try {
+            reserveQuestionOrder();
+        } catch (error) {
+            console.error('Não foi possível reservar uma combinação de perguntas.', error);
+            window.alert(error.message || 'Não foi possível iniciar uma nova partida.');
+            return;
+        }
+
+        gameResultSaved = false;
+        titleScreen.hidden = true;
+        dialoguePanel.hidden = true;
+        showCharacterSpeech('Meu nome é Dorothy Vaughan! Vamos levar a nave para a Terra.');
+        questionTransitionTimeout = window.setTimeout(() => {
+            characterSpeech.hidden = true;
+            openChallenge();
+        }, 4500);
+    }
+
+    function showCharacterSpeech(message) {
+        window.clearTimeout(characterSpeechTimeout);
+        characterSpeech.textContent = message;
+        characterSpeech.hidden = false;
+        characterSpeechTimeout = window.setTimeout(() => {
+            characterSpeech.hidden = true;
+        }, 5500);
+    }
+
+    function openChallenge() {
+        if (activeQuestion || !document.getElementById('surveyModal').hidden || endScreen.hidden === false) return;
+        if (nextQuestionIndex >= questionOrder.length) return;
+
+        activeQuestion = questionOrder[nextQuestionIndex];
+        answerLocked = false;
+        document.getElementById('modalTitle').textContent = activeQuestion.title;
+        document.getElementById('questionProgress').textContent = `PERGUNTA ${nextQuestionIndex + 1} DE ${questionOrder.length} · ${activeQuestion.category.toUpperCase()}`;
+        document.getElementById('modalDesc').textContent = activeQuestion.desc;
+        document.getElementById('dialogueFeedback').hidden = true;
+
+        const optionsDiv = document.getElementById('modalOptions');
+        optionsDiv.replaceChildren();
+        dialoguePanel.scrollTop = 0;
+        activeQuestion.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-option';
+            btn.type = 'button';
+            btn.textContent = opt;
+            btn.addEventListener('click', () => checkAnswer(idx));
+            optionsDiv.appendChild(btn);
+        });
+        dialoguePanel.hidden = false;
+    }
+
+    function checkAnswer(selected) {
+        if (!activeQuestion || answerLocked) return;
+        answerLocked = true;
+        const answerButtons = [...document.querySelectorAll('#modalOptions .btn-option')];
+        answerButtons.forEach((button) => { button.disabled = true; });
+        if (selected === activeQuestion.correct) {
+            answerButtons[selected].classList.add('correct-answer');
+            updateRouteMessage(false);
+            correctAnswers++;
+            nextQuestionIndex++;
+            updateRoundProgress();
+            const isFinalCorrectAnswer = nextQuestionIndex >= questionOrder.length;
+            if (isFinalCorrectAnswer) {
+                parachute.classList.add('deployed');
+                window.setTimeout(() => {
+                    animateRocketTo(nextQuestionIndex / questionOrder.length, 0, 1800);
+                }, 500);
+            } else {
+                animateRocketTo(nextQuestionIndex / questionOrder.length);
+            }
+            dialoguePanel.hidden = true;
+            const curiosity = curiosityOrder[nextCuriosityIndex];
+            if (!curiosity) throw new Error('Não há curiosidades disponíveis para esta rodada.');
+            nextCuriosityIndex++;
+            showCharacterSpeech(curiosity);
+            window.clearTimeout(questionTransitionTimeout);
+            questionTransitionTimeout = window.setTimeout(() => {
+                activeQuestion = null;
+                characterSpeech.hidden = true;
+                if (nextQuestionIndex >= questionOrder.length) {
+                    showMissionEnd(true);
+                } else {
+                    openChallenge();
+                }
+            }, 4500);
+        } else {
+            answerButtons[selected].classList.add('wrong-answer');
+            answerButtons[activeQuestion.correct].classList.add('correct-answer');
+            updateRouteMessage(true);
+            wrongAnswers++;
+            nextQuestionIndex++;
+            fuelLevel = Math.max(0, fuelLevel - 25);
+            updateRoundProgress();
+            updateFuelLevel();
+            const correctAnswer = activeQuestion.options[activeQuestion.correct];
+            const feedback = document.getElementById('dialogueFeedback');
+            feedback.textContent = `Você errou: a resposta correta é: ${correctAnswer}.`;
+            feedback.hidden = false;
+            dialoguePanel.scrollTop = dialoguePanel.scrollHeight;
+            const { point } = getRoutePoint((nextQuestionIndex - 1) / questionOrder.length);
+            meteor.setAttribute('transform', `translate(${point.x} ${point.y})`);
+            meteor.classList.add('in-flight');
+            meteorMotion.beginElement();
+            window.clearTimeout(questionTransitionTimeout);
+            questionTransitionTimeout = window.setTimeout(() => {
+                meteor.classList.remove('in-flight');
+                dialoguePanel.hidden = true;
+                activeQuestion = null;
+                animateRocketTo(nextQuestionIndex / questionOrder.length, 55);
+                if (nextQuestionIndex >= questionOrder.length) {
+                    showMissionEnd(false, correctAnswer);
+                } else {
+                    openChallenge();
+                }
+            }, 1250);
+        }
+    }
+
+    async function showMissionEnd(won, correctAnswer = '') {
+        endCard.classList.toggle('won', won);
+        document.getElementById('endTitle').textContent = won ? 'MISSÃO CONCLUÍDA!' : 'MISSÃO INTERROMPIDA';
+        document.getElementById('endMessage').textContent = won
+            ? `Você trouxe a nave para a Terra! ${correctAnswers} respostas certas e ${wrongAnswers} erradas.`
+            : `A nave foi atingida pelo meteoro. Resposta contabilizada como errada: ${correctAnswer}. Acertos: ${correctAnswers} · Erros: ${wrongAnswers}.`;
+        document.getElementById('restartButton').textContent = won ? '[ JOGAR NOVAMENTE ]' : '[ VOLTAR AO INÍCIO ]';
+        try {
+            await saveGameResult();
+        } catch (error) {
+            console.error('Não foi possível registrar a pontuação da partida.', error);
+            document.getElementById('playerRank').textContent = error.message;
+        }
+        endScreen.hidden = false;
+    }
+
+    document.querySelector('#surveyForm [name="name"]').focus();
+    document.getElementById('startButton').addEventListener('click', startMission);
+    document.getElementById('restartButton').addEventListener('click', () => {
+        activeQuestion = null;
+        answerLocked = false;
+        nextQuestionIndex = 0;
+        nextCuriosityIndex = 0;
+        correctAnswers = 0;
+        wrongAnswers = 0;
+        fuelLevel = 100;
+        questionOrder = createQuestionOrder();
+        curiosityOrder = shuffleItems(dorothyCuriosities);
+        rocket.style.opacity = '1';
+        parachute.classList.remove('deployed');
+        rocketProgress = 0;
+        rocketDeviation = 0;
+        window.cancelAnimationFrame(rocketAnimationFrame);
+        placeRocket(rocketProgress);
+        meteor.classList.remove('in-flight');
+        endScreen.hidden = true;
+        dialoguePanel.hidden = true;
+        characterSpeech.hidden = true;
+        window.clearTimeout(characterSpeechTimeout);
+        window.clearTimeout(questionTransitionTimeout);
+        titleScreen.hidden = false;
+        updateRoundProgress();
+        updateFuelLevel();
+        updateRouteMessage(false);
+    });
+
+    document.querySelectorAll('#surveyForm input[type="text"]').forEach((input) => {
+        input.addEventListener('input', () => {
+            const value = input.value;
+            const selectionStart = input.selectionStart;
+            const selectionEnd = input.selectionEnd;
+            const uppercaseValue = value.toLocaleUpperCase('pt-BR');
+            if (uppercaseValue === value) {
+                return;
+            }
+
+            input.value = uppercaseValue;
+            if (selectionStart !== null && selectionEnd !== null) {
+                input.setSelectionRange(
+                    value.slice(0, selectionStart).toLocaleUpperCase('pt-BR').length,
+                    value.slice(0, selectionEnd).toLocaleUpperCase('pt-BR').length
+                );
+            }
+        });
+    });
+
+    document.getElementById('surveyForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const submitButton = document.getElementById('surveySubmit');
+        const errorMessage = document.getElementById('surveyError');
+        const formData = new FormData(form);
+        const payload = {
+            name: formData.get('name'),
+            school: formData.get('school'),
+            grade: formData.get('grade'),
+            liked_game: formData.get('liked_game'),
+            expo_xp_rating: Number(formData.get('expo_xp_rating'))
+        };
+
+        submitButton.disabled = true;
+        errorMessage.textContent = '';
+        try {
+            if (window.location.protocol === 'file:') {
+                throw new Error('Para salvar seu registro, execute python3 server.py na pasta do jogo e abra http://127.0.0.1:8000 no navegador.');
+            }
+
+            const response = await fetch(`${apiBaseUrl}/api/survey`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const responseText = await response.text();
+            let result;
+            if (responseText) {
+                try {
+                    result = JSON.parse(responseText);
+                } catch {
+                    throw new Error('Resposta inválida do servidor. Confirme que python3 server.py está executando na porta 8000.');
+                }
+            }
+
+            if (!response.ok) {
+                if (response.status === 405) {
+                    throw new Error('O servidor aberto não aceita o cadastro. Pare o servidor atual, execute python3 server.py na pasta do jogo e abra http://127.0.0.1:8000 novamente.');
+                }
+                throw new Error(result?.error || `Não foi possível salvar a pesquisa (HTTP ${response.status}).`);
+            }
+            if (!result || typeof result !== 'object' || !result.id) {
+                throw new Error('O servidor não confirmou o salvamento da pesquisa. Tente novamente.');
+            }
+
+            currentPlayerId = result.id;
+            gameResultSaved = false;
+            displayPlayerRanking({
+                name: payload.name,
+                school: payload.school,
+                games: 0,
+                points: 0,
+                position: null
+            });
+            try {
+                await loadPlayerRanking();
+            } catch (error) {
+                console.error('Não foi possível carregar a classificação inicial do jogador.', error);
+                document.getElementById('playerRank').textContent = 'Indisponível';
+            }
+
+            const surveyModal = document.getElementById('surveyModal');
+            surveyModal.hidden = true;
+            surveyModal.setAttribute('aria-hidden', 'true');
+            document.getElementById('startButton').focus();
+        } catch (error) {
+            errorMessage.textContent = error instanceof TypeError
+                ? 'Não foi possível conectar ao servidor do jogo. Execute python3 server.py na pasta do jogo e abra http://127.0.0.1:8000 no navegador.'
+                : error.message;
+        } finally {
+            submitButton.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>
