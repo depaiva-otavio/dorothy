@@ -330,7 +330,8 @@
             background: #fff;
             box-shadow: 0 0 14px rgba(255, 255, 255, 0.24);
             color: #111;
-            font-size: 0.88rem;
+            font-size: clamp(1rem, 1.6vw, 1.1rem);
+            font-weight: bold;
             line-height: 1.35;
             pointer-events: none;
         }
@@ -597,7 +598,7 @@
                 left: 10px;
                 width: min(280px, calc(100% - 20px));
                 padding: 12px;
-                font-size: 0.76rem;
+                font-size: 0.9rem;
             }
             .character-speech::after { left: 92px; }
             .flight-path { inset: 15% 0 0; height: 80%; }
