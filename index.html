@@ -57,6 +57,68 @@
             opacity: 0;
         }
 
+        .arcade-canvas {
+            position: absolute;
+            z-index: 3;
+            inset: 52px 0 145px;
+            width: 100%;
+            height: calc(100% - 197px);
+            touch-action: none;
+        }
+
+        .arcade-canvas[hidden] { display: none; }
+
+        .mission-objectives {
+            position: absolute;
+            z-index: 5;
+            top: 64px;
+            right: 14px;
+            width: min(300px, 36vw);
+            padding: 10px 12px;
+            border: 1px solid rgba(56, 189, 248, 0.78);
+            border-radius: 8px;
+            background: rgba(7, 17, 30, 0.9);
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
+            color: #e5f4ff;
+            text-transform: uppercase;
+        }
+
+        .mission-objectives h2 {
+            margin: 0 0 7px;
+            color: #7de8f5;
+            font-size: 0.76rem;
+            letter-spacing: 0.06em;
+        }
+
+        .mission-objectives ul {
+            display: grid;
+            gap: 6px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .mission-objective {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 0.68rem;
+            line-height: 1.25;
+        }
+
+        .mission-objective-label { min-width: 0; }
+
+        .mission-objective-status {
+            flex-shrink: 0;
+            color: #ffe58a;
+            font-size: 0.62rem;
+            text-align: right;
+        }
+
+        .mission-objective.is-complete .mission-objective-status { color: #7dff74; }
+        .mission-objective.is-failed .mission-objective-status { color: #ff8d8d; }
+
         .terminal-header {
             position: absolute;
             z-index: 2;
@@ -91,7 +153,7 @@
             left: 16px;
             display: grid;
             grid-template-areas: "status speech questions";
-            grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.8fr) minmax(300px, 1.4fr);
+            grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.8fr) minmax(0, 1.15fr);
             align-items: end;
             gap: 10px;
         }
@@ -107,6 +169,7 @@
             position: static;
             display: flex;
             width: 100%;
+            min-width: 0;
             flex-shrink: 0;
             align-items: center;
             justify-content: center;
@@ -162,12 +225,18 @@
             white-space: nowrap;
         }
 
-        .fuel-card { flex-shrink: 0; }
+        .fuel-card {
+            flex: 0.8 1 0;
+            min-width: 0;
+        }
 
         .route-message {
-            flex: 1 1 0;
-            height: 52px;
+            flex: 1.2 1 0;
             min-width: 0;
+        }
+
+        .route-message {
+            height: 34px;
             overflow-y: auto;
         }
 
@@ -246,83 +315,6 @@
             transition: width 400ms ease, background-color 400ms ease;
         }
 
-        .flight-path {
-            position: absolute;
-            z-index: 3;
-            inset: 8% 0 0;
-            width: 100%;
-            height: 86%;
-            overflow: visible;
-            pointer-events: none;
-        }
-
-        .route-line {
-            fill: none;
-            stroke: #ff9c42;
-            stroke-dasharray: 5 11;
-            stroke-width: 5;
-        }
-
-        .route-traveled {
-            fill: none;
-            stroke: #ff0000;
-            stroke-width: 4;
-            stroke-linecap: round;
-            stroke-dasharray: 1;
-            stroke-dashoffset: 1;
-            pointer-events: none;
-        }
-
-        .route-glow {
-            fill: none;
-            stroke: #082747;
-            stroke-width: 12;
-        }
-
-        .route-line, .route-traveled, .route-glow { visibility: hidden; }
-
-        .earth {
-            fill: #1b6fb3;
-            stroke: #8de7ff;
-            stroke-width: 4;
-            filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.8));
-        }
-
-        .earth-land { fill: #6bd59a; }
-
-        #rocket {
-            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-        }
-
-        #rocket-flame {
-            transform-box: fill-box;
-            transform-origin: right center;
-            animation: rocket-flame-flicker 180ms ease-in-out infinite alternate;
-        }
-
-        @keyframes rocket-flame-flicker {
-            from { opacity: 0.7; transform: scaleX(0.78); }
-            to { opacity: 1; transform: scaleX(1.12); }
-        }
-
-        #parachute {
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 450ms ease, visibility 450ms;
-        }
-
-        #parachute.deployed {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        #meteor {
-            opacity: 0;
-            transition: opacity 150ms ease;
-        }
-
-        #meteor.in-flight { opacity: 1; }
-
         .dorothy-sprite {
             display: none;
         }
@@ -331,19 +323,30 @@
             grid-area: speech;
             display: flex;
             min-width: 0;
-            height: 70px;
+            height: 58px;
             align-items: center;
             margin: 0;
             overflow-y: auto;
-            padding: 8px 12px;
-            border: 2px solid var(--cyan);
+            padding: 6px 9px;
+            border: 1px solid rgba(0, 255, 204, 0.7);
             border-radius: 14px;
             background: var(--panel);
             box-shadow: 0 0 20px rgba(0, 255, 204, 0.14);
             color: #e5f4ff;
-            font-size: clamp(0.8rem, 1vw, 0.95rem);
-            font-weight: bold;
+            font-size: clamp(0.72rem, 0.9vw, 0.85rem);
+            font-weight: normal;
             line-height: 1.3;
+        }
+
+        .character-speech--curiosity {
+            display: block;
+            height: 70px;
+            overflow: hidden;
+            padding: 0 9px;
+            font-size: clamp(0.58rem, 0.75vw, 0.72rem);
+            line-height: 68px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .dialogue-panel {
@@ -361,7 +364,7 @@
             align-items: center;
             column-gap: 8px;
             padding: 5px 8px;
-            border: 2px solid var(--cyan);
+            border: 1px solid rgba(0, 255, 204, 0.7);
             border-radius: 14px;
             background: var(--panel);
             box-shadow: 0 0 20px rgba(0, 255, 204, 0.14);
@@ -452,8 +455,19 @@
             background: #000;
         }
 
+        .opening-screen::before {
+            position: absolute;
+            z-index: 0;
+            inset: -6px;
+            background: linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.24)), url("img/apollo11-2-landscape.jpg") center / cover no-repeat;
+            content: "";
+            filter: blur(2px);
+            transform: scale(1.02);
+        }
+
         .opening-screen::after {
             position: absolute;
+            z-index: 0;
             inset: 0;
             pointer-events: none;
             background: repeating-linear-gradient(transparent 0 3px, rgba(0, 0, 0, 0.28) 4px);
@@ -467,43 +481,47 @@
             width: min(1500px, 100%);
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 0;
         }
 
         .opening-dorothy {
             width: min(44vw, 560px);
             height: min(72vh, 640px);
             object-fit: contain;
-            filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.68));
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 18px rgba(255, 255, 255, 0.72)) drop-shadow(0 18px 28px rgba(0, 0, 0, 0.68));
         }
 
         .opening-copy {
             align-self: flex-start;
             margin-top: 80px;
-            margin-left: 0;
+            margin-left: -120px;
         }
 
         .opening-title {
             margin: 0;
             color: #ff1493;
             font-family: 'Lobster', cursive;
-            font-size: 150px;
+            font-size: clamp(2rem, 8vw, 150px);
             font-weight: 400;
             line-height: 1;
             white-space: nowrap;
-            text-shadow: 0 1px 0 #ff91ca, 0 2px 0 #ec087f, 0 4px 0 #cb006b, 0 6px 0 #a50058, 0 8px 0 #780040, 0 12px 18px rgba(0, 0, 0, 0.68), 0 0 26px rgba(255, 20, 147, 0.5);
+            -webkit-text-stroke: 4px #000;
+            paint-order: stroke fill;
+            text-shadow: 0 1px 0 #ff91ca, 0 2px 0 #ec087f, 0 4px 0 #cb006b, 0 6px 0 #a50058, 0 8px 0 #780040, 0 10px 12px rgba(0, 0, 0, 0.9), 0 0 8px #fff, 0 0 22px rgba(255, 255, 255, 0.95), 0 0 38px rgba(255, 255, 255, 0.72), 0 0 18px #ff1493, 0 0 44px rgba(255, 20, 147, 0.95);
             transform: perspective(700px) rotateY(-5deg);
         }
 
         .opening-subtitle {
-            margin: calc(8px + 0.15em) 0 0;
+            margin: 2px 0 0;
             color: #ffeb00;
             font-family: 'Lobster', cursive;
-            font-size: 60px;
+            font-size: clamp(1rem, 3.4vw, 60px);
             line-height: 1.15;
             white-space: nowrap;
             text-align: center;
-            text-shadow: 0 0 8px #ffb700, 0 3px 12px rgba(0, 0, 0, 0.8);
+            -webkit-text-stroke: 3px #000;
+            paint-order: stroke fill;
+            text-shadow: 0 3px 5px rgba(0, 0, 0, 0.95), 0 0 7px #fff, 0 0 18px rgba(255, 255, 255, 0.95), 0 0 32px rgba(255, 255, 255, 0.7), 0 0 14px #ffeb00, 0 0 28px #ffb700, 0 0 46px rgba(255, 183, 0, 0.95);
         }
 
         .title-card, .end-card {
@@ -614,7 +632,7 @@
 
         @media (max-width: 980px) {
             .game-info-layout {
-                grid-template-columns: minmax(190px, 1fr) minmax(150px, 0.8fr) minmax(240px, 1.3fr);
+                grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.8fr) minmax(0, 1.05fr);
                 gap: 8px;
             }
         }
@@ -622,8 +640,18 @@
         @media (max-width: 680px) {
             .terminal-header { min-height: 48px; padding: 8px 12px; }
             .opening-dorothy { width: 40vw; height: 48vh; }
-            .opening-copy { margin-top: 6vh; margin-left: 0; }
+            .opening-copy { margin-top: 6vh; margin-left: -32px; }
             .opening-title { text-align: left; transform: none; }
+            .mission-objectives {
+                top: 56px;
+                right: 6px;
+                width: min(250px, calc(100vw - 20px));
+                padding: 7px 9px;
+            }
+            .mission-objectives h2 { margin-bottom: 5px; font-size: 0.62rem; }
+            .mission-objectives ul { gap: 4px; }
+            .mission-objective { gap: 5px; font-size: 0.56rem; }
+            .mission-objective-status { font-size: 0.52rem; }
             .game-container {
                 background: #000;
             }
@@ -653,7 +681,7 @@
                 gap: 6px;
             }
             .route-message, .fuel-card { width: 100%; }
-            .route-message { height: 58px; flex-basis: auto; }
+            .route-message { height: 34px; flex-basis: auto; }
             .fuel-card { justify-content: space-between; gap: 4px; }
             .player-card {
                 bottom: calc(100% + 6px);
@@ -668,7 +696,7 @@
                 padding: 6px 9px;
                 font-size: 0.55rem;
             }
-            .route-message { height: 58px; }
+            .route-message { height: 34px; }
             .fuel-track { width: 64px; height: 8px; }
             .terminal-header > span { font-size: 0.56rem; }
             .progress-track { width: clamp(70px, 18vw, 120px); height: 14px; }
@@ -687,7 +715,11 @@
                 max-height: 55%;
             }
             .character-speech { height: 103px; padding: 8px; font-size: 0.68rem; }
-            .flight-path { inset: 15% 0 0; height: 80%; }
+            .character-speech--curiosity { height: 70px; padding: 0 8px; font-size: 0.58rem; line-height: 68px; }
+            .arcade-canvas {
+                inset: 52px 0 225px;
+                height: calc(100% - 277px);
+            }
             .title-screen, .end-screen { inset: 48px 0 0; }
             .title-card, .end-card { padding: 24px 18px; }
             .credits-footer { font-size: 0.72rem; }
@@ -702,7 +734,6 @@
 
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-            #skylab { display: none; }
         }
     </style>
 </head>
@@ -710,21 +741,43 @@
 
 <main class="game-container">
     <header class="terminal-header">
-        <span>&gt; SYSTEM_BOOT: NASA_WEST_AREA_COMPUTING // FORTRAN_MODULE_LOADED</span>
+        <span>&gt; SETAS / WASD MOVER // SEGURE ESPAÇO OU BOTÃO ESQUERDO PARA ATIRAR</span>
     </header>
+    <canvas id="arcadeCanvas" class="arcade-canvas" aria-label="Jogo de combate aéreo: mova a nave com as setas ou WASD e segure a barra de espaço ou o botão esquerdo do mouse para atirar. Em telas sensíveis ao toque, arraste para guiar." hidden></canvas>
+    <aside id="missionObjectives" class="mission-objectives" aria-labelledby="missionObjectivesTitle" aria-live="polite" hidden>
+        <h2 id="missionObjectivesTitle">OBJETIVOS DA MISSÃO</h2>
+        <ul>
+            <li id="rescueObjective" class="mission-objective">
+                <span class="mission-objective-label">Resgate de heroínas</span>
+                <span id="rescueObjectiveStatus" class="mission-objective-status">0/20</span>
+            </li>
+            <li id="seventyPercentObjective" class="mission-objective">
+                <span class="mission-objective-label">70% das naves inimigas</span>
+                <span id="seventyPercentObjectiveStatus" class="mission-objective-status">0/56 (0%)</span>
+            </li>
+            <li id="allEnemiesObjective" class="mission-objective">
+                <span class="mission-objective-label">100% das naves inimigas</span>
+                <span id="allEnemiesObjectiveStatus" class="mission-objective-status">0/80 (0%)</span>
+            </li>
+            <li id="noDamageObjective" class="mission-objective">
+                <span class="mission-objective-label">Pontuar sem ser atingido</span>
+                <span id="noDamageObjectiveStatus" class="mission-objective-status">INTOCADO</span>
+            </li>
+        </ul>
+    </aside>
     <div class="game-info-layout">
         <div class="mission-status-column">
             <div class="mission-status-cards">
                 <div class="route-message" aria-live="polite">
-                    <span class="route-message-label">MENSAGEM:</span>
-                    <span id="routeMessage" class="route-message-text">ROTA CORRETA</span>
+                    <span class="route-message-label">STATUS:</span>
+                    <span id="routeMessage" class="route-message-text">AGUARDANDO PERGUNTAS</span>
                 </div>
                 <div class="fuel-card" aria-label="Combustível da nave">
                     <span>COMBUSTÍVEL</span>
-                    <div class="fuel-track" role="progressbar" aria-label="Nível de combustível" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+                    <div class="fuel-track" role="progressbar" aria-label="Nível de combustível" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                         <div id="fuelFill" class="fuel-fill"></div>
                     </div>
-                    <span id="fuelStatus" aria-live="polite">100%</span>
+                        <span id="fuelStatus" aria-live="polite">0%</span>
                 </div>
             </div>
             <div class="hud" aria-label="Progresso da missão">
@@ -767,87 +820,14 @@
         </section>
     </div>
 
-    <svg class="flight-path" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
-        <g id="skylab">
-            <animateMotion id="skylabMotion" dur="32s" repeatCount="indefinite" calcMode="linear" path="M -130 245 L 1130 245 L -130 245"></animateMotion>
-            <g transform="scale(0.65)" stroke-linejoin="round">
-                <g fill="#26364e" stroke="#9db5ca" stroke-width="2">
-                    <g transform="rotate(45)">
-                        <rect x="-10" y="-123" width="20" height="68"></rect>
-                        <path d="M-5-123v68 M5-123v68 M-10-112h20 M-10-101h20 M-10-90h20 M-10-79h20 M-10-68h20" stroke="#7091ad" stroke-width="1"></path>
-                    </g>
-                    <g transform="rotate(135)">
-                        <rect x="-10" y="-123" width="20" height="68"></rect>
-                        <path d="M-5-123v68 M5-123v68 M-10-112h20 M-10-101h20 M-10-90h20 M-10-79h20 M-10-68h20" stroke="#7091ad" stroke-width="1"></path>
-                    </g>
-                    <g transform="rotate(225)">
-                        <rect x="-10" y="-123" width="20" height="68"></rect>
-                        <path d="M-5-123v68 M5-123v68 M-10-112h20 M-10-101h20 M-10-90h20 M-10-79h20 M-10-68h20" stroke="#7091ad" stroke-width="1"></path>
-                    </g>
-                    <g transform="rotate(315)">
-                        <rect x="-10" y="-123" width="20" height="68"></rect>
-                        <path d="M-5-123v68 M5-123v68 M-10-112h20 M-10-101h20 M-10-90h20 M-10-79h20 M-10-68h20" stroke="#7091ad" stroke-width="1"></path>
-                    </g>
-                </g>
-                <path d="M-23 27h-77v34h77 M23 27h77v34H23" fill="#23354e" stroke="#b9c7ca" stroke-width="3"></path>
-                <path d="M-82 27v34 M-64 27v34 M-46 27v34 M-100 38h77 M-100 50h77 M46 27v34 M64 27v34 M82 27v34 M23 38h77 M23 50h77" fill="none" stroke="#7591a6" stroke-width="1.5"></path>
-                <path d="M-20-70h40v24h-40z" fill="#d5d5cf" stroke="#596875" stroke-width="2"></path>
-                <path d="M-18-46h36v20h-36z" fill="#a9b2b3" stroke="#596875" stroke-width="2"></path>
-                <path d="M-19-26h38v55h-38z" fill="#d0d0c8" stroke="#596875" stroke-width="2"></path>
-                <path d="M-19-8h38v20h-38z" fill="#e3b72f" stroke="#b38b18" stroke-width="2"></path>
-                <path d="M-15-8v20 M-9-8v20 M-3-8v20 M3-8v20 M9-8v20 M15-8v20" stroke="#f8d951" stroke-width="1.5"></path>
-                <rect x="-20" y="29" width="40" height="24" rx="3" fill="#b7c0be" stroke="#596875" stroke-width="2"></rect>
-                <path d="M-17 53h34l-5 12h-24z" fill="#e0e1da" stroke="#596875" stroke-width="2"></path>
-                <circle cx="0" cy="-37" r="15" fill="#bec7c8" stroke="#596875" stroke-width="3"></circle>
-                <circle cx="0" cy="-37" r="8" fill="#8396a1" stroke="#eef1e8" stroke-width="2"></circle>
-                <path d="M-8-72l-5-12 13 2 13-2-5 12z" fill="#d1d2cb" stroke="#596875" stroke-width="2"></path>
-                <path d="M-3-84v-11 M3-84v-11" stroke="#596875" stroke-width="2"></path>
-            </g>
-        </g>
-        <path id="flightRoute" class="route-glow" d="M 280 470 C 380 190, 455 540, 560 340 S 745 185, 910 300"></path>
-        <path class="route-line" d="M 280 470 C 380 190, 455 540, 560 340 S 745 185, 910 300"></path>
-        <path id="routeTraveled" class="route-traveled" d="M 280 470 C 380 190, 455 540, 560 340 S 745 185, 910 300"></path>
-        <g id="earth" transform="translate(910 300)">
-            <circle class="earth" r="48"></circle>
-            <path class="earth-land" d="M-27-22l16-12 12 8 2 13-10 6-4 16-12 5-8-13 4-10-8-5z M13 8l16-7 10 9-7 16-13 3-8-10z"></path>
-            <text x="0" y="72" fill="#d8f7ff" font-size="20" text-anchor="middle" font-family="monospace">TERRA</text>
-        </g>
-        <g id="rocket">
-            <g id="rocket-flame">
-                <path d="M-27-7 C-39-6 -45-2 -57 0 C-45 2 -39 6 -27 7 Z" fill="#ff6b35"></path>
-                <path d="M-27-4 C-36-3 -40-1 -47 0 C-40 1 -36 3 -27 4 Z" fill="#ffe58a"></path>
-            </g>
-            <g id="parachute">
-                <path d="M-40-88 Q-34-128 0-134 Q34-128 40-88 Q0-99-40-88Z" fill="#ff5577" stroke="#fff" stroke-width="2"></path>
-                <path d="M0-133V-94 M-26-119L-13-96 M26-119L13-96" fill="none" stroke="#fff" stroke-width="2"></path>
-                <path d="M-40-88L-12-17 M40-88L12-17" fill="none" stroke="#e5f4ff" stroke-width="2"></path>
-            </g>
-            <path d="M-27-15 L-20-20 L-9-18 L17-8 Q27 0 17 8 L-9 18 L-20 20 L-27 15 Z" fill="#e6e8e7" stroke="#173047" stroke-width="2"></path>
-            <path d="M-27-15 L-20-20 L-9-18 L-6-14 L-15-10 L-20 0 L-15 10 L-6 14 L-9 18 L-20 20 L-27 15 Z" fill="#ff9c42" stroke="#173047" stroke-width="1.5"></path>
-            <path d="M-6-14 L17-8 Q27 0 17 8 L-6 14 L-15 10 L-20 0 L-15-10 Z" fill="#d9e1e5" stroke="#38bdf8" stroke-width="1.5"></path>
-            <path d="M-11-9 L-4-7 L-5-3 L-13-4 Z M1-6 L8-4 L7 0 L0-1 Z M1 6 L8 4 L7 0 L0 1 Z" fill="#173047" stroke="#8de7ff" stroke-width="1"></path>
-            <path d="M-19-10 L-14-7 M-19 10 L-14 7 M-7-14 L-6 14" fill="none" stroke="#fff" stroke-width="1.5"></path>
-            <path d="M17-8 Q27 0 17 8" fill="none" stroke="#ff9c42" stroke-width="2"></path>
-            <path d="M19-3 L25-7 M20 0 L28 0 M19 3 L25 7" fill="none" stroke="#173047" stroke-width="1.5"></path>
-        </g>
-        <g id="meteor">
-            <animateMotion id="meteorMotion" dur="1.2s" fill="freeze" path="M 320 -220 L 0 0"></animateMotion>
-            <path d="M-48 4 Q-75 0-92-18 Q-70 8-52 17Z" fill="#ff6b35" opacity=".7"></path>
-            <path d="M-28-9 Q-15-32 9-25 Q34-27 38-3 Q48 18 23 29 Q-4 37-20 20 Q-37 10-28-9Z" fill="#a96e59" stroke="#ff9b70" stroke-width="4"></path>
-            <circle cx="-10" cy="-4" r="6" fill="#754638"></circle>
-            <circle cx="17" cy="10" r="8" fill="#754638"></circle>
-            <circle cx="13" cy="-14" r="4" fill="#754638"></circle>
-        </g>
-    </svg>
-
     <img class="dorothy-sprite" src="img/dorothyvaughan.png" alt="Dorothy Vaughan">
 
     <section id="titleScreen" class="title-screen">
         <div class="title-card">
             <h1>O CÓDIGO DE DOROTHY VAUGHAN</h1>
             <p class="subtitle">A Revolução dos Números na Era Espacial</p>
-            <p>Traga a nave pra Terra com suas respostas.</p>
-            <p id="registrationGateMessage" class="registration-gate-message" role="status">Cada faixa etária tem perguntas próprias; as combinações não se repetem nas primeiras 100 partidas da faixa.</p>
+            <p>Faça seu cadastro e voe por uma missão de combate aéreo com rolagem vertical.</p>
+            <p id="registrationGateMessage" class="registration-gate-message" role="status">Card de perguntas temporariamente desativado.</p>
             <button id="startButton" class="btn-start" type="button">[ PRESSIONE PARA INICIAR ]</button>
             <footer class="credits-footer">
                 Desenvolvido por: <strong>Subsecretaria de Ciência e Tecnologia de Arraial do Cabo</strong>
@@ -1149,25 +1129,6 @@
         });
     }
 
-    const dorothyCuriosities = [
-        "Curiosidade: nasci em Kansas City, em 1910.",
-        "Curiosidade: estudei matemática na Wilberforce.",
-        "Curiosidade: fui professora de matemática.",
-        "Curiosidade: comecei a trabalhar em Langley em 1943.",
-        "Curiosidade: a NACA pesquisava aviões.",
-        "Curiosidade: na West Area, mulheres calculavam trajetórias.",
-        "Curiosidade: em 1949, liderei a West Area Computing.",
-        "Curiosidade: fui a primeira supervisora negra da NACA.",
-        "Curiosidade: a NASA substituiu a NACA em 1958.",
-        "Curiosidade: aprendi FORTRAN para usar computadores.",
-        "Curiosidade: ensinei programação às minhas colegas.",
-        "Curiosidade: ajudei no programa de foguetes Scout.",
-        "Curiosidade: trabalhei na NACA e na NASA por quase 30 anos.",
-        "Curiosidade: me aposentei da NASA em 1971.",
-        "Curiosidade: abri caminhos para mulheres negras na ciência.",
-        "Curiosidade: vivi até os 98 anos."
-    ];
-
     const titleScreen = document.getElementById('titleScreen');
     const openingScreen = document.getElementById('openingScreen');
     const registrationModal = document.getElementById('surveyModal');
@@ -1175,32 +1136,23 @@
     const characterSpeech = document.getElementById('characterSpeech');
     const endScreen = document.getElementById('endScreen');
     const endCard = document.getElementById('endCard');
-    const flightRoute = document.getElementById('flightRoute');
-    const routeTraveled = document.getElementById('routeTraveled');
-    const rocket = document.getElementById('rocket');
-    const parachute = document.getElementById('parachute');
-    const meteor = document.getElementById('meteor');
-    const meteorMotion = document.getElementById('meteorMotion');
-    const skylabMotion = document.getElementById('skylabMotion');
     let activeQuestion = null;
     let answerLocked = false;
     let nextQuestionIndex = 0;
     let correctAnswers = 0;
     let wrongAnswers = 0;
-    let fuelLevel = 100;
+    let fuelLevel = 0;
     let currentPlayerId = null;
     let currentAge = null;
+    let playerFirstName = '';
     let currentRoundToken = null;
     let gameResultSaved = false;
     const apiBaseUrl = window.location.port === '8000'
         ? window.location.origin
         : 'http://127.0.0.1:8000';
-    let rocketProgress = 0;
-    let rocketDeviation = 0;
-    let rocketAnimationFrame = 0;
     let questionTransitionTimeout = 0;
-    let nextCuriosityIndex = 0;
     const questionsPerRound = 4;
+    const quizEnabled = false;
 
     function shuffleItems(items) {
         const shuffledItems = [...items];
@@ -1261,71 +1213,1067 @@
     }
 
     let questionOrder = createQuestionOrder("7 a 8 anos");
-    let curiosityOrder = shuffleItems(dorothyCuriosities);
+    const arcadeCanvas = document.getElementById('arcadeCanvas');
+    const arcadeContext = arcadeCanvas.getContext('2d');
+    const dorothyIslandSprite = document.querySelector('.dorothy-sprite');
+    if (!arcadeContext) throw new Error('Não foi possível iniciar a área de jogo.');
+    const pressedKeys = new Set();
+    let arcadeActive = false;
+    let mouseFiring = false;
+    let arcadeAnimationFrame = 0;
+    let arcadeLastFrame = 0;
+    let arcadeWidth = 0;
+    let arcadeHeight = 0;
+    let playerShip = { x: 0, y: 0, width: 58, height: 62 };
+    let enemyShips = [];
+    let playerShots = [];
+    let playerMissiles = [];
+    let enemyShots = [];
+    let scenery = [];
+    let explosions = [];
+    let lives = 3;
+    let targetsHit = 0;
+    let targetsLost = 0;
+    let peopleRescued = 0;
+    let damageTaken = false;
+    let wavesSpawned = 0;
+    let enemiesSpawnedInWave = 0;
+    let nextEnemySpawnAt = 0;
+    let lastPlayerShot = 0;
+    let lastPlayerMissile = 0;
+    let nextEnemyShot = 0;
+    let invulnerableUntil = 0;
+    let sceneryOffset = 0;
+    const enemyTargetCount = 80;
+    const enemiesPerWave = 10;
+    const totalWaves = enemyTargetCount / enemiesPerWave;
+    const rescueTargetCount = 20;
+    const regularRescueTargetCount = rescueTargetCount - 1;
+    const movementKeys = new Set([
+        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+        'KeyA', 'KeyD', 'KeyW', 'KeyS', 'Space'
+    ]);
 
-    function updateRouteForViewport() {
-        const isNarrow = window.matchMedia('(max-width: 680px)').matches;
-        const routePath = isNarrow
-            ? 'M 200 510 C 200 470, 200 430, 200 390'
-            : 'M 500 510 C 500 470, 500 430, 500 390';
-        const svg = flightRoute.ownerSVGElement;
-        flightRoute.setAttribute('d', routePath);
-        document.querySelector('.route-line').setAttribute('d', routePath);
-        routeTraveled.setAttribute('d', routePath);
-        skylabMotion.setAttribute('path', isNarrow
-            ? 'M -130 240 L 530 240 L -130 240'
-            : 'M -130 245 L 1130 245 L -130 245');
-        skylabMotion.beginElement();
-        const routeLength = flightRoute.getTotalLength();
-        routeTraveled.style.strokeDasharray = String(routeLength);
-        routeTraveled.style.strokeDashoffset = String(routeLength * (1 - rocketProgress));
-        svg.setAttribute('viewBox', isNarrow ? '0 0 400 600' : '0 0 1000 600');
-        document.getElementById('earth').setAttribute('transform', `translate(${isNarrow ? 335 : 920} ${isNarrow ? -13 : 43})`);
-        placeRocket(rocketProgress);
+    function regularRescueLimit() {
+        const dorothyStillNeedsRescue = scenery.some((feature) =>
+            feature.hasDorothy && !feature.dorothyRescued
+        );
+        return dorothyStillNeedsRescue ? regularRescueTargetCount : rescueTargetCount;
     }
 
-    function getRoutePoint(progress) {
-        const routeLength = flightRoute.getTotalLength();
-        const distance = routeLength * Math.max(0, Math.min(progress, 1));
-        const point = flightRoute.getPointAtLength(distance);
-        const nextPoint = flightRoute.getPointAtLength(Math.min(routeLength, distance + 1));
-        const referencePoint = distance < routeLength
-            ? point
-            : flightRoute.getPointAtLength(Math.max(0, distance - 1));
-        const angle = Math.atan2(nextPoint.y - referencePoint.y, nextPoint.x - referencePoint.x) * 180 / Math.PI;
-        return { point, angle };
+    function addRandomRescuee(feature) {
+        if (feature.kind !== 'island' || feature.hasDorothy || peopleRescued >= regularRescueLimit()) {
+            feature.rescuee = null;
+            return;
+        }
+        feature.rescuee = {
+            x: (Math.random() - 0.5) * 58,
+            y: (Math.random() - 0.5) * 30,
+            rescued: false
+        };
     }
 
-    function placeRocket(progress) {
-        const { point, angle } = getRoutePoint(progress);
-        const radians = (angle + 90) * Math.PI / 180;
-        const offsetX = Math.cos(radians) * rocketDeviation;
-        const offsetY = Math.sin(radians) * rocketDeviation;
-        rocket.setAttribute('transform', `translate(${point.x + offsetX} ${point.y + offsetY}) rotate(${angle})`);
-        const routeLength = flightRoute.getTotalLength();
-        routeTraveled.style.strokeDashoffset = String(routeLength * (1 - progress));
+    function resizeArcadeCanvas() {
+        const bounds = arcadeCanvas.getBoundingClientRect();
+        if (bounds.width === 0 || bounds.height === 0) return;
+        const pixelRatio = window.devicePixelRatio || 1;
+        arcadeWidth = bounds.width;
+        arcadeHeight = bounds.height;
+        arcadeCanvas.width = Math.round(arcadeWidth * pixelRatio);
+        arcadeCanvas.height = Math.round(arcadeHeight * pixelRatio);
+        arcadeContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        const sceneryCount = Math.max(6, Math.ceil(arcadeHeight / 165) + 2);
+        scenery = Array.from({ length: sceneryCount }, (_, index) => ({
+            x: index % 5 === 2
+                ? arcadeWidth / 2
+                : index % 2 === 0
+                    ? arcadeWidth * (0.14 + Math.random() * 0.22)
+                    : arcadeWidth * (0.64 + Math.random() * 0.22),
+            y: (index / sceneryCount) * arcadeHeight,
+            size: 0.56 + Math.random() * 0.42,
+            kind: index % 5 === 2 ? 'bridge' : index % 3 === 0 ? 'island' : 'rocks',
+            seed: Math.random() * 10
+        }));
+        const dorothyIsland = scenery.find((feature) => feature.kind === 'island')
+            || scenery.find((feature) => feature.kind !== 'bridge');
+        if (dorothyIsland) {
+            dorothyIsland.kind = 'island';
+            dorothyIsland.size = Math.max(dorothyIsland.size, 0.95);
+            dorothyIsland.hasDorothy = true;
+            dorothyIsland.dorothyRescued = false;
+        }
+        scenery.forEach((feature) => addRandomRescuee(feature));
+        if (!scenery.some((feature) => feature.rescuee)) {
+            const island = scenery.find((feature) => feature.kind === 'island');
+            if (island) addRandomRescuee(island);
+        }
+        playerShip.x = Math.max(playerShip.width / 2, Math.min(playerShip.x || arcadeWidth / 2, arcadeWidth - playerShip.width / 2));
+        playerShip.y = Math.max(arcadeHeight * 0.74, arcadeHeight - 52);
+        enemyShips.forEach((enemy) => {
+            enemy.x = Math.max(enemy.width / 2 + 8, Math.min(enemy.x, arcadeWidth - enemy.width / 2 - 8));
+        });
     }
 
-    function animateRocketTo(progress, deviation = 0, duration = 900) {
-        const startProgress = rocketProgress;
-        const distance = progress - startProgress;
-        const startDeviation = rocketDeviation;
-        let startTime = null;
+    function drawAircraft(x, y, isEnemy = false, timestamp = 0) {
+        arcadeContext.save();
+        arcadeContext.translate(x, y);
+        if (isEnemy) arcadeContext.rotate(Math.PI);
+        const body = isEnemy ? '#f04438' : '#e8eff0';
+        const underside = isEnemy ? '#a91f2b' : '#718493';
+        const trim = isEnemy ? '#851d2a' : '#d83e36';
 
-        window.cancelAnimationFrame(rocketAnimationFrame);
-        const animate = (timestamp) => {
-            if (startTime === null) startTime = timestamp;
-            const fraction = Math.min((timestamp - startTime) / duration, 1);
-            rocketProgress = startProgress + distance * fraction;
-            rocketDeviation = startDeviation + (deviation - startDeviation) * fraction;
-            placeRocket(rocketProgress);
+        arcadeContext.fillStyle = '#ffad3f';
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(-7, 20);
+        arcadeContext.lineTo(-5, 34 + Math.sin(timestamp / 35) * 5);
+        arcadeContext.lineTo(0, 42 + Math.sin(timestamp / 35) * 6);
+        arcadeContext.lineTo(5, 34 + Math.sin(timestamp / 35) * 5);
+        arcadeContext.lineTo(7, 20);
+        arcadeContext.closePath();
+        arcadeContext.fill();
+        arcadeContext.fillStyle = '#fff1a6';
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(-3, 24);
+        arcadeContext.lineTo(0, 37 + Math.sin(timestamp / 35) * 4);
+        arcadeContext.lineTo(3, 24);
+        arcadeContext.closePath();
+        arcadeContext.fill();
 
-            if (fraction < 1) {
-                rocketAnimationFrame = window.requestAnimationFrame(animate);
+        arcadeContext.fillStyle = underside;
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(0, -37);
+        arcadeContext.lineTo(5, -19);
+        arcadeContext.lineTo(37, 4);
+        arcadeContext.lineTo(36, 13);
+        arcadeContext.lineTo(12, 8);
+        arcadeContext.lineTo(8, 25);
+        arcadeContext.lineTo(16, 34);
+        arcadeContext.lineTo(15, 38);
+        arcadeContext.lineTo(0, 33);
+        arcadeContext.lineTo(-15, 38);
+        arcadeContext.lineTo(-16, 34);
+        arcadeContext.lineTo(-8, 25);
+        arcadeContext.lineTo(-12, 8);
+        arcadeContext.lineTo(-36, 13);
+        arcadeContext.lineTo(-37, 4);
+        arcadeContext.lineTo(-5, -19);
+        arcadeContext.closePath();
+        arcadeContext.fill();
+
+        arcadeContext.fillStyle = body;
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(0, -40);
+        arcadeContext.lineTo(7, -18);
+        arcadeContext.lineTo(31, 4);
+        arcadeContext.lineTo(29, 9);
+        arcadeContext.lineTo(8, 4);
+        arcadeContext.lineTo(5, 22);
+        arcadeContext.lineTo(13, 31);
+        arcadeContext.lineTo(0, 27);
+        arcadeContext.lineTo(-13, 31);
+        arcadeContext.lineTo(-5, 22);
+        arcadeContext.lineTo(-8, 4);
+        arcadeContext.lineTo(-29, 9);
+        arcadeContext.lineTo(-31, 4);
+        arcadeContext.lineTo(-7, -18);
+        arcadeContext.closePath();
+        arcadeContext.fill();
+
+        arcadeContext.fillStyle = underside;
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(0, -32);
+        arcadeContext.lineTo(4, -16);
+        arcadeContext.lineTo(0, 14);
+        arcadeContext.lineTo(-4, -16);
+        arcadeContext.closePath();
+        arcadeContext.fill();
+        arcadeContext.fillStyle = trim;
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(0, -39);
+        arcadeContext.lineTo(3, -19);
+        arcadeContext.lineTo(0, -10);
+        arcadeContext.lineTo(-3, -19);
+        arcadeContext.closePath();
+        arcadeContext.fill();
+        arcadeContext.fillRect(-29, 4, 10, 3);
+        arcadeContext.fillRect(19, 4, 10, 3);
+        arcadeContext.fillStyle = '#f8d66d';
+        arcadeContext.fillRect(-25, 4, 4, 3);
+        arcadeContext.fillRect(21, 4, 4, 3);
+        if (targetsHit >= enemiesPerWave) {
+            arcadeContext.fillStyle = '#596c7a';
+            arcadeContext.fillRect(-26, 3, 6, 13);
+            arcadeContext.fillRect(20, 3, 6, 13);
+            arcadeContext.fillStyle = '#d74837';
+            arcadeContext.fillRect(-24, 13, 2, 5);
+            arcadeContext.fillRect(22, 13, 2, 5);
+        }
+
+        const canopy = arcadeContext.createLinearGradient(-5, -24, 5, -7);
+        canopy.addColorStop(0, '#e8fbff');
+        canopy.addColorStop(0.35, isEnemy ? '#f6b4a7' : '#55c8e4');
+        canopy.addColorStop(1, '#173c62');
+        arcadeContext.fillStyle = canopy;
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(0, -29);
+        arcadeContext.lineTo(5, -17);
+        arcadeContext.lineTo(3, -7);
+        arcadeContext.lineTo(0, -3);
+        arcadeContext.lineTo(-3, -7);
+        arcadeContext.lineTo(-5, -17);
+        arcadeContext.closePath();
+        arcadeContext.fill();
+        arcadeContext.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+        arcadeContext.lineWidth = 1.5;
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(-1, -25);
+        arcadeContext.lineTo(2, -17);
+        arcadeContext.stroke();
+
+        arcadeContext.strokeStyle = '#465c69';
+        arcadeContext.lineWidth = 2;
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(-5, 30);
+        arcadeContext.lineTo(-13, 35);
+        arcadeContext.moveTo(5, 30);
+        arcadeContext.lineTo(13, 35);
+        arcadeContext.stroke();
+        arcadeContext.fillStyle = '#fff4c1';
+        arcadeContext.beginPath();
+        arcadeContext.arc(-33, 8, 2, 0, Math.PI * 2);
+        arcadeContext.arc(33, 8, 2, 0, Math.PI * 2);
+        arcadeContext.fill();
+        arcadeContext.restore();
+    }
+
+    function drawIsland(x, y, size, seed, rocky = false) {
+        arcadeContext.save();
+        arcadeContext.translate(x, y);
+        arcadeContext.scale(size, size);
+        arcadeContext.fillStyle = 'rgba(3, 21, 33, 0.34)';
+        arcadeContext.beginPath();
+        arcadeContext.ellipse(2, 8, 73, 45, -0.12, 0, Math.PI * 2);
+        arcadeContext.fill();
+
+        const drawLandShape = (scale, color, phase) => {
+            arcadeContext.beginPath();
+            for (let point = 0; point <= 32; point++) {
+                const angle = (point / 32) * Math.PI * 2;
+                const irregularity = 1 + Math.sin(angle * 3 + seed + phase) * 0.13
+                    + Math.cos(angle * 5 + seed * 1.7) * 0.08;
+                const px = Math.cos(angle) * 68 * scale * irregularity;
+                const py = Math.sin(angle) * 39 * scale * irregularity;
+                if (point === 0) arcadeContext.moveTo(px, py);
+                else arcadeContext.lineTo(px, py);
             }
+            arcadeContext.closePath();
+            arcadeContext.fillStyle = color;
+            arcadeContext.fill();
+            arcadeContext.strokeStyle = phase === 0 ? 'rgba(247, 231, 170, 0.7)' : 'rgba(202, 224, 137, 0.22)';
+            arcadeContext.lineWidth = phase === 0 ? 2 : 1;
+            arcadeContext.stroke();
         };
 
-        rocketAnimationFrame = window.requestAnimationFrame(animate);
+        const shore = arcadeContext.createLinearGradient(-50, -35, 50, 40);
+        shore.addColorStop(0, rocky ? '#9e967f' : '#f4d99a');
+        shore.addColorStop(1, rocky ? '#6e725f' : '#c3a36a');
+        const foliage = arcadeContext.createLinearGradient(-30, -30, 36, 32);
+        foliage.addColorStop(0, rocky ? '#778170' : '#73a953');
+        foliage.addColorStop(1, rocky ? '#4e6258' : '#286344');
+        drawLandShape(1, shore, 0);
+        drawLandShape(0.82, foliage, 0.4);
+        drawLandShape(0.58, rocky ? '#777c68' : '#33744b', 0.8);
+        if (!rocky) {
+            for (let tree = 0; tree < 12; tree++) {
+                const treeX = Math.sin(seed * 2 + tree * 2.1) * 43;
+                const treeY = Math.cos(seed + tree * 1.7) * 23;
+                const treeSize = 2.5 + (tree % 3);
+                arcadeContext.fillStyle = 'rgba(22, 43, 36, 0.42)';
+                arcadeContext.beginPath();
+                arcadeContext.ellipse(treeX + 2, treeY + 5, treeSize + 2, treeSize + 1, 0, 0, Math.PI * 2);
+                arcadeContext.fill();
+                arcadeContext.fillStyle = '#654834';
+                arcadeContext.fillRect(treeX - 1, treeY, 2, treeSize + 3);
+                arcadeContext.fillStyle = tree % 2 ? '#277044' : '#438850';
+                arcadeContext.beginPath();
+                arcadeContext.arc(treeX, treeY, treeSize, 0, Math.PI * 2);
+                arcadeContext.fill();
+                arcadeContext.fillStyle = 'rgba(160, 203, 103, 0.45)';
+                arcadeContext.beginPath();
+                arcadeContext.arc(treeX - 1, treeY - 1, treeSize * 0.48, 0, Math.PI * 2);
+                arcadeContext.fill();
+            }
+            arcadeContext.strokeStyle = 'rgba(242, 225, 176, 0.55)';
+            arcadeContext.lineWidth = 1;
+            arcadeContext.beginPath();
+            arcadeContext.arc(-35, 3, 7, -1.1, 1.05);
+            arcadeContext.arc(31, -10, 5, 0.3, 2.6);
+            arcadeContext.stroke();
+        } else {
+            arcadeContext.fillStyle = 'rgba(49, 52, 45, 0.3)';
+            arcadeContext.beginPath();
+            arcadeContext.ellipse(-10, -5, 31, 14, -0.4, 0, Math.PI * 2);
+            arcadeContext.fill();
+            arcadeContext.strokeStyle = 'rgba(203, 199, 171, 0.48)';
+            arcadeContext.lineWidth = 2;
+            arcadeContext.beginPath();
+            arcadeContext.moveTo(-34, -11);
+            arcadeContext.lineTo(-19, -3);
+            arcadeContext.lineTo(-3, -13);
+            arcadeContext.moveTo(12, 9);
+            arcadeContext.lineTo(24, 1);
+            arcadeContext.lineTo(38, 4);
+            arcadeContext.stroke();
+        }
+        arcadeContext.restore();
+    }
+
+    function drawRescuee(feature) {
+        if (!feature.rescuee || feature.rescuee.rescued) return;
+        arcadeContext.save();
+        arcadeContext.translate(feature.x, feature.y);
+        arcadeContext.scale(feature.size, feature.size);
+        arcadeContext.translate(feature.rescuee.x, feature.rescuee.y);
+        arcadeContext.scale(1.5 / feature.size, 1.5 / feature.size);
+        arcadeContext.strokeStyle = '#24313a';
+        arcadeContext.lineWidth = 4;
+        arcadeContext.lineCap = 'round';
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(-2, 8);
+        arcadeContext.lineTo(-4, 16);
+        arcadeContext.lineTo(-5, 18);
+        arcadeContext.moveTo(2, 8);
+        arcadeContext.lineTo(4, 16);
+        arcadeContext.lineTo(6, 18);
+        arcadeContext.stroke();
+
+        arcadeContext.strokeStyle = '#f1bd91';
+        arcadeContext.lineWidth = 3;
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(-3, -1);
+        arcadeContext.lineTo(-8, -7);
+        arcadeContext.lineTo(-11, -12);
+        arcadeContext.moveTo(3, -1);
+        arcadeContext.lineTo(8, -7);
+        arcadeContext.lineTo(11, -12);
+        arcadeContext.stroke();
+
+        arcadeContext.fillStyle = '#e94332';
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(-4, -2);
+        arcadeContext.lineTo(4, -2);
+        arcadeContext.lineTo(5, 8);
+        arcadeContext.lineTo(0, 11);
+        arcadeContext.lineTo(-5, 8);
+        arcadeContext.closePath();
+        arcadeContext.fill();
+
+        arcadeContext.fillStyle = '#ffe58a';
+        arcadeContext.fillRect(-2, 0, 4, 5);
+        arcadeContext.fillStyle = '#f1bd91';
+        arcadeContext.beginPath();
+        arcadeContext.arc(0, -7, 4, 0, Math.PI * 2);
+        arcadeContext.fill();
+        arcadeContext.fillStyle = '#49352c';
+        arcadeContext.beginPath();
+        arcadeContext.arc(0, -8, 4, Math.PI, Math.PI * 2);
+        arcadeContext.fill();
+        arcadeContext.fillStyle = '#26313a';
+        arcadeContext.beginPath();
+        arcadeContext.arc(-1.4, -6, 0.45, 0, Math.PI * 2);
+        arcadeContext.arc(1.4, -6, 0.45, 0, Math.PI * 2);
+        arcadeContext.fill();
+
+        arcadeContext.strokeStyle = '#f6e8c9';
+        arcadeContext.lineWidth = 1.5;
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(15, 9);
+        arcadeContext.lineTo(15, -18);
+        arcadeContext.stroke();
+        arcadeContext.fillStyle = '#fff2a4';
+        arcadeContext.strokeStyle = '#5a3721';
+        arcadeContext.lineWidth = 1;
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(16, -17);
+        arcadeContext.lineTo(28, -14);
+        arcadeContext.lineTo(16, -10);
+        arcadeContext.closePath();
+        arcadeContext.fill();
+        arcadeContext.stroke();
+        arcadeContext.fillStyle = '#872b20';
+        arcadeContext.font = 'bold 5px "Courier New", monospace';
+        arcadeContext.textAlign = 'left';
+        arcadeContext.fillText('SOS', 17, -13.2);
+        arcadeContext.restore();
+    }
+
+    function drawDorothyOnIsland(feature) {
+        if (
+            !feature.hasDorothy
+            || feature.dorothyRescued
+            || !dorothyIslandSprite.complete
+            || !dorothyIslandSprite.naturalWidth
+        ) return;
+        arcadeContext.save();
+        arcadeContext.translate(feature.x, feature.y);
+        arcadeContext.scale(feature.size, feature.size);
+        arcadeContext.drawImage(dorothyIslandSprite, -40, -56, 80, 80);
+
+        if (Math.hypot(playerShip.x - feature.x, playerShip.y - feature.y) > 420) {
+            arcadeContext.restore();
+            return;
+        }
+
+        arcadeContext.fillStyle = '#fff8df';
+        arcadeContext.strokeStyle = '#263747';
+        arcadeContext.lineWidth = 2;
+        arcadeContext.beginPath();
+        arcadeContext.roundRect(-112, -232, 224, 102, 10);
+        arcadeContext.moveTo(-22, -130);
+        arcadeContext.lineTo(-14, -113);
+        arcadeContext.lineTo(-6, -130);
+        arcadeContext.closePath();
+        arcadeContext.fill();
+        arcadeContext.stroke();
+        arcadeContext.fillStyle = '#172b3a';
+        arcadeContext.font = 'bold 12px "Courier New", monospace';
+        arcadeContext.textAlign = 'left';
+        arcadeContext.fillText('Dorothy Vaughan:', -98, -212);
+        arcadeContext.fillText('matemática,', -98, -194);
+        arcadeContext.fillText('programadora e', -98, -176);
+        arcadeContext.fillText('cientista da computação', -98, -158);
+        arcadeContext.fillText('que trabalhou na NASA.', -98, -140);
+        arcadeContext.restore();
+    }
+
+    function drawBridge(x, y, width) {
+        arcadeContext.save();
+        arcadeContext.translate(x, y);
+        drawIsland(-width / 2 + 22, 0, 0.76, 1.2);
+        drawIsland(width / 2 - 22, 0, 0.76, 3.4);
+        arcadeContext.fillStyle = 'rgba(1, 16, 28, 0.4)';
+        arcadeContext.fillRect(-width / 2, -12, width, 35);
+        arcadeContext.fillStyle = '#65472f';
+        arcadeContext.fillRect(-width / 2, -17, width, 30);
+        arcadeContext.fillStyle = '#b9854c';
+        arcadeContext.fillRect(-width / 2, -15, width, 4);
+        arcadeContext.fillRect(-width / 2, 9, width, 4);
+        arcadeContext.fillStyle = '#543a2a';
+        for (let plank = -width / 2 + 8; plank < width / 2; plank += 15) {
+            arcadeContext.fillRect(plank, -12, 3, 21);
+        }
+        arcadeContext.fillStyle = '#332d28';
+        arcadeContext.fillRect(-width / 2 + 2, -22, 6, 40);
+        arcadeContext.fillRect(width / 2 - 8, -22, 6, 40);
+        arcadeContext.fillStyle = '#4d4639';
+        for (let post = -width / 2 + 24; post < width / 2 - 16; post += 48) {
+            arcadeContext.fillRect(post, -27, 3, 11);
+            arcadeContext.fillRect(post, 13, 3, 11);
+        }
+        arcadeContext.strokeStyle = 'rgba(225, 196, 135, 0.8)';
+        arcadeContext.lineWidth = 2;
+        arcadeContext.beginPath();
+        arcadeContext.moveTo(-width / 2 + 7, -24);
+        arcadeContext.lineTo(width / 2 - 7, -24);
+        arcadeContext.moveTo(-width / 2 + 7, 21);
+        arcadeContext.lineTo(width / 2 - 7, 21);
+        arcadeContext.stroke();
+        arcadeContext.strokeStyle = 'rgba(43, 36, 30, 0.65)';
+        arcadeContext.lineWidth = 1;
+        for (let brace = -width / 2 + 34; brace < width / 2 - 25; brace += 48) {
+            arcadeContext.beginPath();
+            arcadeContext.moveTo(brace, -12);
+            arcadeContext.lineTo(brace + 21, 9);
+            arcadeContext.moveTo(brace + 21, -12);
+            arcadeContext.lineTo(brace, 9);
+            arcadeContext.stroke();
+        }
+        arcadeContext.restore();
+    }
+
+    function drawCoastalBanks() {
+        ['left', 'right'].forEach((side) => {
+            const isLeft = side === 'left';
+            const sign = isLeft ? 1 : -1;
+            const shorelineX = (y, inset = 0) => {
+                const coast = arcadeWidth * (isLeft ? 0.09 : 0.91)
+                    + sign * (
+                        Math.sin((y + sceneryOffset) / 150) * arcadeWidth * 0.027
+                        + Math.sin(y / 87 + (isLeft ? 1 : 4)) * arcadeWidth * 0.014
+                    );
+                return coast + sign * inset;
+            };
+            const fillBank = (inset, color) => {
+                arcadeContext.beginPath();
+                arcadeContext.moveTo(isLeft ? 0 : arcadeWidth, -24);
+                for (let y = -24; y <= arcadeHeight + 24; y += 32) {
+                    arcadeContext.lineTo(shorelineX(y, inset), y);
+                }
+                arcadeContext.lineTo(isLeft ? 0 : arcadeWidth, arcadeHeight + 24);
+                arcadeContext.closePath();
+                arcadeContext.fillStyle = color;
+                arcadeContext.fill();
+            };
+
+            fillBank(0, '#c3ae78');
+            fillBank(12, '#63834f');
+            fillBank(25, '#315e45');
+            fillBank(39, 'rgba(27, 79, 59, 0.72)');
+
+            arcadeContext.strokeStyle = 'rgba(233, 223, 174, 0.72)';
+            arcadeContext.lineWidth = 4;
+            arcadeContext.beginPath();
+            for (let y = -24; y <= arcadeHeight + 24; y += 24) {
+                const x = shorelineX(y);
+                if (y === -24) arcadeContext.moveTo(x, y);
+                else arcadeContext.lineTo(x, y);
+            }
+            arcadeContext.stroke();
+
+            for (let detail = 0; detail < 12; detail++) {
+                const y = ((detail * 61 + sceneryOffset * 0.7) % (arcadeHeight + 50)) - 25;
+                const x = shorelineX(y, 22 + (detail % 3) * 9);
+                const treeSize = 3 + detail % 4;
+                arcadeContext.fillStyle = 'rgba(12, 39, 34, 0.35)';
+                arcadeContext.beginPath();
+                arcadeContext.ellipse(x + sign * 3, y + 5, treeSize + 3, treeSize + 2, 0, 0, Math.PI * 2);
+                arcadeContext.fill();
+                arcadeContext.fillStyle = detail % 2 ? '#236244' : '#397b4c';
+                arcadeContext.beginPath();
+                arcadeContext.arc(x, y, treeSize, 0, Math.PI * 2);
+                arcadeContext.fill();
+                arcadeContext.fillStyle = 'rgba(159, 193, 106, 0.5)';
+                arcadeContext.beginPath();
+                arcadeContext.arc(x - sign, y - 1, treeSize * 0.44, 0, Math.PI * 2);
+                arcadeContext.fill();
+            }
+
+            arcadeContext.strokeStyle = 'rgba(217, 205, 160, 0.4)';
+            arcadeContext.lineWidth = 1;
+            for (let contour = 0; contour < 5; contour++) {
+                arcadeContext.beginPath();
+                for (let y = 0; y <= arcadeHeight; y += 28) {
+                    const x = shorelineX(y, 42 + contour * 12);
+                    if (y === 0) arcadeContext.moveTo(x, y);
+                    else arcadeContext.lineTo(x, y);
+                }
+                arcadeContext.stroke();
+            }
+        });
+    }
+
+    function drawScenery() {
+        const water = arcadeContext.createLinearGradient(0, 0, arcadeWidth, arcadeHeight);
+        water.addColorStop(0, '#073c72');
+        water.addColorStop(0.22, '#0878a9');
+        water.addColorStop(0.55, '#0b6898');
+        water.addColorStop(0.8, '#075384');
+        water.addColorStop(1, '#04345f');
+        arcadeContext.fillStyle = water;
+        arcadeContext.fillRect(0, 0, arcadeWidth, arcadeHeight);
+        for (let wave = 0; wave < 46; wave++) {
+            const y = ((wave * 47 + sceneryOffset * (wave % 2 ? 1.15 : 1.8)) % (arcadeHeight + 60)) - 30;
+            const x = (wave * 113 + Math.sin(wave * 9) * 40) % Math.max(1, arcadeWidth);
+            arcadeContext.strokeStyle = wave % 4 === 0 ? 'rgba(176, 241, 245, 0.28)' : 'rgba(0, 31, 69, 0.16)';
+            arcadeContext.lineWidth = wave % 4 === 0 ? 1.5 : 3;
+            arcadeContext.beginPath();
+            arcadeContext.moveTo(x - 11, y);
+            arcadeContext.bezierCurveTo(x + 1, y - 8, x + 14, y + 8, x + 27, y);
+            arcadeContext.lineTo(x + 34, y - 1);
+            arcadeContext.stroke();
+        }
+        for (let ray = 0; ray < 5; ray++) {
+            const rayX = arcadeWidth * (0.08 + ray * 0.21);
+            arcadeContext.strokeStyle = 'rgba(165, 232, 237, 0.035)';
+            arcadeContext.lineWidth = arcadeWidth * 0.035;
+            arcadeContext.beginPath();
+            arcadeContext.moveTo(rayX, 0);
+            arcadeContext.lineTo(rayX + arcadeWidth * 0.12, arcadeHeight);
+            arcadeContext.stroke();
+        }
+        drawCoastalBanks();
+        scenery.forEach((feature) => {
+            if (feature.kind === 'bridge') {
+                drawBridge(feature.x, feature.y, arcadeWidth * 0.82);
+            }
+            else drawIsland(feature.x, feature.y, feature.size, feature.seed, feature.kind === 'rocks');
+            drawDorothyOnIsland(feature);
+            drawRescuee(feature);
+        });
+        const light = arcadeContext.createRadialGradient(arcadeWidth * 0.2, arcadeHeight * 0.2, 4, arcadeWidth * 0.2, arcadeHeight * 0.2, arcadeWidth * 0.8);
+        light.addColorStop(0, 'rgba(142, 240, 255, 0.16)');
+        light.addColorStop(0.45, 'rgba(50, 173, 211, 0.035)');
+        light.addColorStop(1, 'rgba(0, 14, 48, 0.25)');
+        arcadeContext.fillStyle = light;
+        arcadeContext.fillRect(0, 0, arcadeWidth, arcadeHeight);
+        const vignette = arcadeContext.createRadialGradient(
+            arcadeWidth / 2, arcadeHeight / 2, arcadeHeight * 0.12,
+            arcadeWidth / 2, arcadeHeight / 2, Math.max(arcadeWidth, arcadeHeight) * 0.72
+        );
+        vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        vignette.addColorStop(1, 'rgba(0, 12, 34, 0.28)');
+        arcadeContext.fillStyle = vignette;
+        arcadeContext.fillRect(0, 0, arcadeWidth, arcadeHeight);
+    }
+
+    function drawEnemy(enemy, timestamp) {
+        drawAircraft(enemy.x, enemy.y, true, timestamp);
+    }
+
+    function drawExplosion(explosion, timestamp) {
+        const progress = (timestamp - explosion.startedAt) / 480;
+        const radius = 8 + progress * 32;
+        arcadeContext.save();
+        arcadeContext.globalAlpha = 1 - progress;
+        arcadeContext.strokeStyle = '#ffe477';
+        arcadeContext.lineWidth = 4 - progress * 2;
+        arcadeContext.beginPath();
+        arcadeContext.arc(explosion.x, explosion.y, radius, 0, Math.PI * 2);
+        arcadeContext.stroke();
+        arcadeContext.fillStyle = '#ff823e';
+        arcadeContext.beginPath();
+        arcadeContext.arc(explosion.x, explosion.y, radius * 0.42, 0, Math.PI * 2);
+        arcadeContext.fill();
+        arcadeContext.restore();
+    }
+
+    function drawArcadeFrame(timestamp) {
+        arcadeContext.clearRect(0, 0, arcadeWidth, arcadeHeight);
+        drawScenery();
+        const resolvedTargets = targetsHit + targetsLost;
+        const currentWave = Math.min(wavesSpawned || 1, totalWaves);
+        arcadeContext.font = 'bold 13px "Courier New", monospace';
+        arcadeContext.textAlign = 'left';
+        const combatLabel = `ONDA ${currentWave}/${totalWaves}  ${resolvedTargets}/${enemyTargetCount}  A:${targetsHit} P:${targetsLost}  RES:${peopleRescued}  VIDAS:${lives}`;
+        const combatLabelWidth = arcadeContext.measureText(combatLabel).width + 20;
+        arcadeContext.fillStyle = 'rgba(7, 24, 43, 0.75)';
+        arcadeContext.fillRect(12, 10, combatLabelWidth, 28);
+        arcadeContext.fillStyle = '#fff';
+        arcadeContext.fillText(combatLabel, 22, 29);
+        enemyShips.forEach((enemy) => {
+            if (enemy.alive) drawEnemy(enemy, timestamp);
+        });
+        explosions.forEach((explosion) => drawExplosion(explosion, timestamp));
+        if (timestamp >= invulnerableUntil || Math.floor(timestamp / 100) % 2 === 0) {
+            drawAircraft(playerShip.x, playerShip.y, false, timestamp);
+        }
+        if (playerFirstName) {
+            arcadeContext.save();
+            arcadeContext.font = 'bold 10px "Courier New", monospace';
+            arcadeContext.textAlign = 'center';
+            const cardWidth = Math.min(arcadeContext.measureText(playerFirstName).width + 14, 100);
+            const cardHeight = 18;
+            const cardX = playerShip.x - cardWidth / 2;
+            const cardY = playerShip.y - 54;
+            arcadeContext.fillStyle = 'rgba(9, 29, 49, 0.92)';
+            arcadeContext.strokeStyle = '#7de8f5';
+            arcadeContext.lineWidth = 1.5;
+            arcadeContext.beginPath();
+            arcadeContext.roundRect(cardX, cardY, cardWidth, cardHeight, 5);
+            arcadeContext.fill();
+            arcadeContext.stroke();
+            arcadeContext.fillStyle = '#ffffff';
+            arcadeContext.fillText(playerFirstName, playerShip.x, cardY + 12, cardWidth - 8);
+            arcadeContext.restore();
+        }
+        arcadeContext.fillStyle = '#d8fbff';
+        playerShots.forEach((shot) => {
+            arcadeContext.shadowColor = '#8fffff';
+            arcadeContext.shadowBlur = 10;
+            arcadeContext.fillRect(shot.x - 2, shot.y - 9, 4, 16);
+        });
+        arcadeContext.shadowBlur = 0;
+        playerMissiles.forEach((missile) => {
+            arcadeContext.save();
+            arcadeContext.translate(missile.x, missile.y);
+            arcadeContext.rotate(Math.atan2(missile.velocityY, missile.velocityX) + Math.PI / 2);
+            arcadeContext.fillStyle = '#e8eff0';
+            arcadeContext.beginPath();
+            arcadeContext.moveTo(0, -10);
+            arcadeContext.lineTo(4, 4);
+            arcadeContext.lineTo(2, 9);
+            arcadeContext.lineTo(-2, 9);
+            arcadeContext.lineTo(-4, 4);
+            arcadeContext.closePath();
+            arcadeContext.fill();
+            arcadeContext.fillStyle = '#f04438';
+            arcadeContext.fillRect(-2, 1, 4, 4);
+            arcadeContext.restore();
+        });
+        arcadeContext.fillStyle = '#ffb24d';
+        enemyShots.forEach((shot) => {
+            arcadeContext.beginPath();
+            arcadeContext.ellipse(shot.x, shot.y, 4, 7, 0, 0, Math.PI * 2);
+            arcadeContext.fill();
+        });
+    }
+
+    function overlaps(shot, target) {
+        return Math.abs(shot.x - target.x) < target.width / 2 + 3
+            && Math.abs(shot.y - target.y) < target.height / 2 + 5;
+    }
+
+    function endArcadeGame(won) {
+        arcadeActive = false;
+        pressedKeys.clear();
+        mouseFiring = false;
+        window.cancelAnimationFrame(arcadeAnimationFrame);
+        showMissionEnd(won);
+    }
+
+    function spawnEnemyWave(waveNumber) {
+        enemiesSpawnedInWave = 0;
+        nextEnemySpawnAt = 0;
+        wavesSpawned = waveNumber;
+    }
+
+    function updateArcade(timestamp) {
+        const elapsed = Math.min((timestamp - arcadeLastFrame) / 1000, 0.04);
+        arcadeLastFrame = timestamp;
+
+        const horizontalDirection = Number(pressedKeys.has('ArrowRight') || pressedKeys.has('KeyD'))
+            - Number(pressedKeys.has('ArrowLeft') || pressedKeys.has('KeyA'));
+        const verticalDirection = Number(pressedKeys.has('ArrowDown') || pressedKeys.has('KeyS'))
+            - Number(pressedKeys.has('ArrowUp') || pressedKeys.has('KeyW'));
+        playerShip.x += horizontalDirection * 300 * elapsed;
+        playerShip.y += verticalDirection * 260 * elapsed;
+        playerShip.x = Math.max(playerShip.width / 2 + 8, Math.min(arcadeWidth - playerShip.width / 2 - 8, playerShip.x));
+        playerShip.y = Math.max(arcadeHeight * 0.4, Math.min(arcadeHeight - playerShip.height / 2 - 8, playerShip.y));
+
+        const isFiring = pressedKeys.has('Space') || mouseFiring;
+        if (isFiring && timestamp - lastPlayerShot >= 180) {
+            playerShots.push(
+                { x: playerShip.x - 10, y: playerShip.y - 20, width: 4, height: 12 },
+                { x: playerShip.x + 10, y: playerShip.y - 20, width: 4, height: 12 }
+            );
+            lastPlayerShot = timestamp;
+        }
+
+        const missilesUnlocked = targetsHit >= enemiesPerWave;
+        if (isFiring && missilesUnlocked && timestamp - lastPlayerMissile >= 1100) {
+            const livingEnemies = enemyShips.filter((enemy) => enemy.alive);
+            if (livingEnemies.length) {
+                for (let missile = 0; missile < 2; missile++) {
+                    const target = livingEnemies[missile % livingEnemies.length];
+                    const offsetX = missile % 2 === 0 ? -24 : 24;
+                    playerMissiles.push({
+                        x: playerShip.x + offsetX,
+                        y: playerShip.y + 5,
+                        velocityX: 0,
+                        velocityY: -320,
+                        target
+                    });
+                }
+                lastPlayerMissile = timestamp;
+            }
+        }
+
+        if (enemiesSpawnedInWave < enemiesPerWave && timestamp >= nextEnemySpawnAt) {
+            const size = { width: 82, height: 84 };
+            enemyShips.push({
+                x: size.width / 2 + 8 + Math.random() * Math.max(0, arcadeWidth - size.width - 16),
+                y: -size.height / 2,
+                ...size,
+                alive: true,
+                phase: Math.random() * Math.PI * 2,
+                descentSpeed: 125 + Math.random() * 70
+            });
+            enemiesSpawnedInWave++;
+            nextEnemySpawnAt = timestamp + 650 + Math.random() * 550;
+        }
+
+        sceneryOffset = (sceneryOffset + 70 * elapsed) % (arcadeHeight + 150);
+        scenery.forEach((feature) => {
+            feature.y += 70 * elapsed;
+            if (
+                feature.hasDorothy
+                && !feature.dorothyRescued
+                && peopleRescued < rescueTargetCount
+                && Math.abs(playerShip.x - feature.x) < 42 * feature.size
+                && Math.abs(playerShip.y - (feature.y - 10 * feature.size)) < 44 * feature.size
+            ) {
+                feature.dorothyRescued = true;
+                peopleRescued++;
+                updateCombatStatus();
+                showCharacterSpeech(peopleRescued === rescueTargetCount
+                    ? 'Dorothy Vaughan resgatada! Todas as 20 heroínas foram salvas!'
+                    : 'Dorothy Vaughan resgatada!');
+                updateStatusMessage(`DOROTHY VAUGHAN RESGATADA · HEROÍNAS: ${peopleRescued}/${rescueTargetCount}`);
+            }
+            if (
+                feature.kind === 'island'
+                && feature.rescuee
+                && !feature.rescuee.rescued
+                && peopleRescued < regularRescueLimit()
+                && Math.abs(playerShip.x - (feature.x + feature.rescuee.x * feature.size)) < 30
+                && Math.abs(playerShip.y - (feature.y + feature.rescuee.y * feature.size)) < 30
+            ) {
+                feature.rescuee.rescued = true;
+                peopleRescued++;
+                updateCombatStatus();
+                showCharacterSpeech(peopleRescued === rescueTargetCount
+                    ? 'Todas as heroínas foram resgatadas!'
+                    : 'Heroína resgatada! Continue voando para encontrar outras.');
+                updateStatusMessage(`HEROÍNAS RESGATADAS: ${peopleRescued}/${rescueTargetCount}`);
+            }
+            if (feature.y > arcadeHeight + 80) {
+                feature.y = -80;
+                const bridgeVisible = scenery.some((candidate) =>
+                    candidate !== feature
+                    && candidate.kind === 'bridge'
+                    && candidate.y > -80
+                    && candidate.y < arcadeHeight + 80
+                );
+                feature.kind = feature.hasDorothy
+                    ? 'island'
+                    : !bridgeVisible && Math.random() < 0.2
+                        ? 'bridge'
+                        : Math.random() < 0.5 ? 'island' : 'rocks';
+                feature.x = feature.kind === 'bridge' ? arcadeWidth / 2 : Math.random() * arcadeWidth;
+                feature.seed = Math.random() * 10;
+                addRandomRescuee(feature);
+            }
+        });
+
+        enemyShips.forEach((enemy) => {
+            if (!enemy.alive) return;
+            enemy.y += enemy.descentSpeed * elapsed;
+            if (enemy.y - enemy.height / 2 > arcadeHeight) {
+                enemy.alive = false;
+                targetsLost++;
+                updateCombatStatus();
+                return;
+            }
+            enemy.x += Math.sin(timestamp / 520 + enemy.phase) * 46 * elapsed;
+            enemy.x = Math.max(enemy.width / 2 + 8, Math.min(arcadeWidth - enemy.width / 2 - 8, enemy.x));
+        });
+
+        if (timestamp >= nextEnemyShot) {
+            const activeEnemies = enemyShips.filter((enemy) => enemy.alive);
+            if (activeEnemies.length) {
+                const shooter = activeEnemies[Math.floor(Math.random() * activeEnemies.length)];
+                enemyShots.push({
+                    x: shooter.x,
+                    y: shooter.y + shooter.height / 2,
+                    velocityX: Math.max(-85, Math.min(85, (playerShip.x - shooter.x) * 0.2)),
+                    velocityY: 210,
+                    width: 4,
+                    height: 14
+                });
+            }
+            nextEnemyShot = timestamp + 750 + Math.random() * 700;
+        }
+
+        playerShots.forEach((shot) => { shot.y -= 470 * elapsed; });
+        enemyShots.forEach((shot) => {
+            shot.x += shot.velocityX * elapsed;
+            shot.y += shot.velocityY * elapsed;
+        });
+        playerMissiles.forEach((missile) => {
+            if (!missile.target?.alive) {
+                missile.target = enemyShips.find((enemy) => enemy.alive);
+            }
+            if (!missile.target) return;
+            const directionX = missile.target.x - missile.x;
+            const directionY = missile.target.y - missile.y;
+            const distance = Math.hypot(directionX, directionY) || 1;
+            missile.velocityX = (directionX / distance) * 320;
+            missile.velocityY = (directionY / distance) * 320;
+            missile.x += missile.velocityX * elapsed;
+            missile.y += missile.velocityY * elapsed;
+        });
+        explosions = explosions.filter((explosion) => timestamp - explosion.startedAt < 480);
+        playerShots = playerShots.filter((shot) => shot.y > -12);
+        playerMissiles = playerMissiles.filter((missile) =>
+            missile.target?.alive && missile.y > -24 && missile.y < arcadeHeight + 24
+        );
+        enemyShots = enemyShots.filter((shot) => shot.y < arcadeHeight + 12);
+
+        const destroyEnemy = (target) => {
+            if (!target?.alive) return;
+            target.alive = false;
+            targetsHit++;
+            explosions.push({ x: target.x, y: target.y, startedAt: timestamp });
+            updateCombatStatus();
+        };
+        const hitPlayer = () => {
+            explosions.push({ x: playerShip.x, y: playerShip.y, startedAt: timestamp });
+            if (timestamp < invulnerableUntil) return;
+            lives--;
+            damageTaken = true;
+            invulnerableUntil = timestamp + 1100;
+            updateCombatStatus();
+            if (lives <= 0) endArcadeGame(false);
+        };
+
+        playerShots.forEach((shot) => {
+            const target = enemyShips.find((enemy) => enemy.alive && overlaps(shot, enemy));
+            if (target) {
+                shot.y = -20;
+                destroyEnemy(target);
+            }
+        });
+        playerMissiles.forEach((missile) => {
+            const target = enemyShips.find((enemy) => enemy.alive && overlaps(missile, enemy));
+            if (target) {
+                missile.y = -40;
+                destroyEnemy(target);
+            }
+        });
+        enemyShots.forEach((shot) => {
+            if (timestamp >= invulnerableUntil && overlaps(shot, playerShip)) {
+                shot.y = arcadeHeight + 20;
+                hitPlayer();
+            }
+        });
+
+        const collidingEnemy = enemyShips.find((enemy) => enemy.alive && overlaps(enemy, playerShip));
+        if (collidingEnemy) {
+            destroyEnemy(collidingEnemy);
+            hitPlayer();
+        }
+
+        if (!arcadeActive) return;
+        const resolvedTargets = targetsHit + targetsLost;
+        if (resolvedTargets >= enemyTargetCount) {
+            endArcadeGame(true);
+            return;
+        }
+        if (
+            resolvedTargets > 0
+            && resolvedTargets % enemiesPerWave === 0
+            && resolvedTargets / enemiesPerWave < totalWaves
+            && wavesSpawned < resolvedTargets / enemiesPerWave + 1
+        ) {
+            const nextWave = resolvedTargets / enemiesPerWave + 1;
+            if (nextWave === 2) {
+                showCharacterSpeech('Dez inimigos abatidos! Mísseis acoplados às asas. A próxima formação se aproxima.');
+                updateStatusMessage(`MÍSSEIS LIBERADOS · ONDA 2/${totalWaves}`);
+            } else {
+                showCharacterSpeech(`Onda ${nextWave} de ${totalWaves} a caminho! Mantenha o caça em movimento.`);
+                updateStatusMessage(`ONDA ${nextWave}/${totalWaves} A CAMINHO`);
+            }
+            spawnEnemyWave(nextWave);
+            updateCombatStatus();
+        }
+        drawArcadeFrame(timestamp);
+        arcadeAnimationFrame = window.requestAnimationFrame(updateArcade);
+    }
+
+    function startArcadeGame() {
+        if (quizEnabled && (nextQuestionIndex < questionsPerRound || fuelLevel !== 100)) {
+            throw new Error('Responda às quatro perguntas para liberar o jogo.');
+        }
+        arcadeCanvas.hidden = false;
+        playerShip.x = 0;
+        resizeArcadeCanvas();
+        enemyShips = [];
+        playerShots = [];
+        playerMissiles = [];
+        enemyShots = [];
+        explosions = [];
+        pressedKeys.clear();
+        mouseFiring = false;
+        lives = 3;
+        targetsHit = 0;
+        targetsLost = 0;
+        peopleRescued = 0;
+        damageTaken = false;
+        wavesSpawned = 0;
+        sceneryOffset = 0;
+        lastPlayerShot = 0;
+        lastPlayerMissile = 0;
+        nextEnemyShot = performance.now() + 700;
+        invulnerableUntil = 0;
+        arcadeActive = true;
+        document.getElementById('missionObjectives').hidden = false;
+        spawnEnemyWave(1);
+        updateCombatStatus();
+        arcadeLastFrame = performance.now();
+        characterSpeech.hidden = false;
+        showCharacterSpeech('Guie o caça com as setas ou WASD. Segure a barra de espaço ou o botão esquerdo do mouse para disparar; no celular, arraste para guiar.');
+        document.getElementById('routeMessage').textContent = 'COMBATE EM ANDAMENTO';
+        document.getElementById('routeMessage').classList.remove('route-message--detour');
+        arcadeAnimationFrame = window.requestAnimationFrame(updateArcade);
+    }
+
+    window.addEventListener('keydown', (event) => {
+        if (!arcadeActive || !movementKeys.has(event.code)) return;
+        event.preventDefault();
+        pressedKeys.add(event.code);
+    });
+    window.addEventListener('keyup', (event) => pressedKeys.delete(event.code));
+    window.addEventListener('blur', () => {
+        pressedKeys.clear();
+        mouseFiring = false;
+    });
+    arcadeCanvas.addEventListener('pointerdown', (event) => {
+        if (!arcadeActive) return;
+        arcadeCanvas.setPointerCapture(event.pointerId);
+        if (event.pointerType === 'mouse' && event.button === 0) mouseFiring = true;
+        moveShipToPointer(event);
+    });
+    arcadeCanvas.addEventListener('pointermove', (event) => {
+        if (arcadeActive && event.buttons) moveShipToPointer(event);
+    });
+    window.addEventListener('pointerup', (event) => {
+        if (event.pointerType === 'mouse' && event.button === 0) mouseFiring = false;
+    });
+    window.addEventListener('pointercancel', () => {
+        mouseFiring = false;
+    });
+    window.addEventListener('resize', resizeArcadeCanvas);
+
+    function moveShipToPointer(event) {
+        const bounds = arcadeCanvas.getBoundingClientRect();
+        playerShip.x = (event.clientX - bounds.left) * (arcadeWidth / bounds.width);
+        playerShip.y = (event.clientY - bounds.top) * (arcadeHeight / bounds.height);
+        playerShip.x = Math.max(playerShip.width / 2 + 8, Math.min(arcadeWidth - playerShip.width / 2 - 8, playerShip.x));
+        playerShip.y = Math.max(arcadeHeight * 0.4, Math.min(arcadeHeight - playerShip.height / 2 - 8, playerShip.y));
+    }
+
+    function updateCombatStatus() {
+        const currentWave = Math.min(wavesSpawned || 1, totalWaves);
+        const resolvedTargets = targetsHit + targetsLost;
+        const missilesUnlocked = targetsHit >= enemiesPerWave ? 1 : 0;
+        document.getElementById('scoreStatus').textContent =
+            `ONDA: ${currentWave}/${totalWaves} · ALVOS: ${resolvedTargets}/${enemyTargetCount} · ACERTADOS: ${targetsHit} · PERDIDOS: ${targetsLost} · RESGATADOS: ${peopleRescued} · VIDAS: ${lives} · MÍSSEIS: ${missilesUnlocked}`;
+        updateMissionObjectives();
+    }
+
+    function updateMissionObjectives(missionEnded = false) {
+        const rescuedObjective = document.getElementById('rescueObjective');
+        const seventyPercentObjective = document.getElementById('seventyPercentObjective');
+        const allEnemiesObjective = document.getElementById('allEnemiesObjective');
+        const noDamageObjective = document.getElementById('noDamageObjective');
+        const setObjectiveState = (objective, state) => {
+            objective.classList.toggle('is-complete', state === 'complete');
+            objective.classList.toggle('is-failed', state === 'failed');
+        };
+        const seventyPercentTarget = Math.ceil(enemyTargetCount * 0.7);
+
+        document.getElementById('rescueObjectiveStatus').textContent =
+            `${peopleRescued}/${rescueTargetCount}`;
+        setObjectiveState(rescuedObjective, peopleRescued >= rescueTargetCount ? 'complete' : 'active');
+
+        document.getElementById('seventyPercentObjectiveStatus').textContent =
+            `${Math.min(targetsHit, seventyPercentTarget)}/${seventyPercentTarget} (${Math.min(100, Math.floor((targetsHit / seventyPercentTarget) * 100))}%)`;
+        setObjectiveState(seventyPercentObjective, targetsHit >= seventyPercentTarget ? 'complete' : 'active');
+
+        document.getElementById('allEnemiesObjectiveStatus').textContent =
+            `${Math.min(targetsHit, enemyTargetCount)}/${enemyTargetCount} (${Math.min(100, Math.floor((targetsHit / enemyTargetCount) * 100))}%)`;
+        setObjectiveState(allEnemiesObjective, targetsHit >= enemyTargetCount ? 'complete' : 'active');
+
+        const noDamageStatus = document.getElementById('noDamageObjectiveStatus');
+        noDamageStatus.textContent = damageTaken
+            ? 'FALHOU · ATINGIDO'
+            : missionEnded && targetsHit > 0
+                ? 'OBJETIVO CUMPRIDO'
+                : 'INTOCADO';
+        setObjectiveState(
+            noDamageObjective,
+            damageTaken ? 'failed' : missionEnded && targetsHit > 0 ? 'complete' : 'active'
+        );
     }
 
     function updateRoundProgress() {
@@ -1333,7 +2281,9 @@
         document.getElementById('roundProgressFill').style.width = `${progress}%`;
         document.querySelector('.progress-track').setAttribute('aria-valuenow', String(progress));
         document.getElementById('roundProgressPercent').textContent = `${progress}%`;
-        document.getElementById('scoreStatus').textContent = `ACERTOS: ${correctAnswers} · ERROS: ${wrongAnswers}`;
+        document.getElementById('scoreStatus').textContent = arcadeActive
+            ? `ONDA: ${Math.min(wavesSpawned || 1, totalWaves)}/${totalWaves} · ALVOS: ${targetsHit + targetsLost}/${enemyTargetCount} · ACERTADOS: ${targetsHit} · PERDIDOS: ${targetsLost} · RESGATADOS: ${peopleRescued} · VIDAS: ${lives} · MÍSSEIS: ${targetsHit >= enemiesPerWave ? 1 : 0}`
+            : `ACERTOS: ${correctAnswers} · ERROS: ${wrongAnswers}`;
     }
 
     function updateFuelLevel() {
@@ -1347,6 +2297,7 @@
 
     function displayPlayerRanking(ranking) {
         document.getElementById('playerName').textContent = ranking.name;
+        playerFirstName = ranking.name.trim().split(/\s+/)[0];
         document.getElementById('playerSchool').textContent = ranking.school;
         document.getElementById('playerGames').textContent = String(ranking.games);
         document.getElementById('playerPoints').textContent = String(ranking.points).padStart(3, '0');
@@ -1398,16 +2349,12 @@
         displayPlayerRanking(result.ranking);
     }
 
-    function updateRouteMessage(detoured) {
+    function updateStatusMessage(message, isDetour = false) {
         const routeMessage = document.getElementById('routeMessage');
-        routeMessage.textContent = detoured
-            ? 'DESVIO DE ROTA - RESPOSTA ERRADA!!!'
-            : 'ROTA CORRETA';
-        routeMessage.classList.toggle('route-message--detour', detoured);
+        routeMessage.textContent = message;
+        routeMessage.classList.toggle('route-message--detour', isDetour);
     }
 
-    window.addEventListener('resize', updateRouteForViewport);
-    updateRouteForViewport();
     updateRoundProgress();
     updateFuelLevel();
 
@@ -1416,14 +2363,37 @@
         registrationModal.hidden = false;
         registrationModal.setAttribute('aria-hidden', 'false');
         document.querySelector('#surveyForm [name="name"]').focus();
-    }, 15000);
+    }, 7000);
 
     async function startMission() {
         const startButton = document.getElementById('startButton');
         const registrationGateMessage = document.getElementById('registrationGateMessage');
+        if (!currentPlayerId || !currentAge) {
+            registrationGateMessage.textContent = 'Cadastre seu jogador antes de iniciar a missão.';
+            registrationModal.hidden = false;
+            registrationModal.setAttribute('aria-hidden', 'false');
+            document.querySelector('#surveyForm [name="name"]').focus();
+            return;
+        }
+
         startButton.disabled = true;
 
         try {
+            gameResultSaved = false;
+            correctAnswers = 0;
+            wrongAnswers = 0;
+            titleScreen.hidden = true;
+            dialoguePanel.hidden = true;
+
+            if (!quizEnabled) {
+                fuelLevel = 100;
+                updateFuelLevel();
+                updateStatusMessage('COMBATE EM ANDAMENTO');
+                showCharacterSpeech('Guie o caça com as setas ou WASD. Segure a barra de espaço ou o botão esquerdo do mouse para disparar; no celular, arraste para guiar.');
+                startArcadeGame();
+                return;
+            }
+
             currentRoundToken ||= crypto.randomUUID();
             const round = await reserveQuestionOrder();
             if (round.players_in_age_group === round.players_before_repeat) {
@@ -1434,18 +2404,12 @@
                 registrationGateMessage.textContent = `${currentAge}: ${round.players_in_age_group} de ${round.players_before_repeat} partidas. As combinações não se repetem até a ${round.players_before_repeat}ª partida.`;
             }
 
-            gameResultSaved = false;
-            titleScreen.hidden = true;
-            showCharacterSpeech('Meu nome é Dorothy Vaughan! Vamos levar a nave para a Terra.');
-            document.getElementById('modalTitle').textContent = 'Missão iniciada';
-            document.getElementById('questionProgress').textContent = 'PREPARE-SE';
-            document.getElementById('modalDesc').textContent = 'A primeira pergunta aparecerá em instantes.';
-            document.getElementById('modalOptions').replaceChildren();
-            document.getElementById('dialogueFeedback').hidden = true;
-            dialoguePanel.hidden = false;
-            questionTransitionTimeout = window.setTimeout(() => {
-                openChallenge();
-            }, 4500);
+            nextQuestionIndex = 0;
+            fuelLevel = 0;
+            updateRoundProgress();
+            updateFuelLevel();
+            showCharacterSpeech('Responda às quatro perguntas para abastecer a nave.');
+            openChallenge();
         } catch (error) {
             console.error('Não foi possível reservar as perguntas ou iniciar a partida.', error);
             registrationGateMessage.textContent = error instanceof TypeError
@@ -1458,6 +2422,8 @@
 
     function showCharacterSpeech(message) {
         characterSpeech.textContent = message;
+        characterSpeech.classList.remove('character-speech--curiosity');
+        characterSpeech.title = '';
         characterSpeech.hidden = false;
     }
 
@@ -1491,78 +2457,61 @@
         answerLocked = true;
         const answerButtons = [...document.querySelectorAll('#modalOptions .btn-option')];
         answerButtons.forEach((button) => { button.disabled = true; });
-        if (selected === activeQuestion.correct) {
+        const isCorrect = selected === activeQuestion.correct;
+        if (isCorrect) {
             answerButtons[selected].classList.add('correct-answer');
-            updateRouteMessage(false);
             correctAnswers++;
-            nextQuestionIndex++;
-            updateRoundProgress();
-            const isFinalCorrectAnswer = nextQuestionIndex >= questionOrder.length;
-            if (isFinalCorrectAnswer) {
-                parachute.classList.add('deployed');
-                window.setTimeout(() => {
-                    animateRocketTo(nextQuestionIndex / questionOrder.length, 0, 1800);
-                }, 500);
-            } else {
-                animateRocketTo(nextQuestionIndex / questionOrder.length);
-            }
-            const curiosity = curiosityOrder[nextCuriosityIndex];
-            if (!curiosity) throw new Error('Não há curiosidades disponíveis para esta rodada.');
-            nextCuriosityIndex++;
-            showCharacterSpeech(curiosity);
-            document.getElementById('modalTitle').textContent = 'RESPOSTA CORRETA';
-            document.getElementById('questionProgress').textContent = 'CURIOSIDADE';
-            document.getElementById('modalDesc').textContent = 'Leia a curiosidade enquanto a próxima pergunta é preparada.';
-            document.getElementById('modalOptions').replaceChildren();
-            document.getElementById('dialogueFeedback').hidden = true;
-            window.clearTimeout(questionTransitionTimeout);
-            questionTransitionTimeout = window.setTimeout(() => {
-                activeQuestion = null;
-                if (nextQuestionIndex >= questionOrder.length) {
-                    showMissionEnd(true);
-                } else {
-                    openChallenge();
-                }
-            }, 4500);
+            updateStatusMessage('RESPOSTA CORRETA');
         } else {
             answerButtons[selected].classList.add('wrong-answer');
             answerButtons[activeQuestion.correct].classList.add('correct-answer');
-            updateRouteMessage(true);
             wrongAnswers++;
-            nextQuestionIndex++;
-            fuelLevel = Math.max(0, fuelLevel - 25);
-            updateRoundProgress();
-            updateFuelLevel();
-            const correctAnswer = activeQuestion.options[activeQuestion.correct];
-            const feedback = document.getElementById('dialogueFeedback');
-            feedback.textContent = `Você errou: a resposta correta é: ${correctAnswer}.`;
-            feedback.hidden = false;
-            dialoguePanel.scrollTop = dialoguePanel.scrollHeight;
-            const { point } = getRoutePoint((nextQuestionIndex - 1) / questionOrder.length);
-            meteor.setAttribute('transform', `translate(${point.x} ${point.y})`);
-            meteor.classList.add('in-flight');
-            meteorMotion.beginElement();
-            window.clearTimeout(questionTransitionTimeout);
-            questionTransitionTimeout = window.setTimeout(() => {
-                meteor.classList.remove('in-flight');
-                activeQuestion = null;
-                animateRocketTo(nextQuestionIndex / questionOrder.length, 55);
-                if (nextQuestionIndex >= questionOrder.length) {
-                    showMissionEnd(false, correctAnswer);
-                } else {
-                    openChallenge();
-                }
-            }, 1250);
+            updateStatusMessage('RESPOSTA INCORRETA', true);
         }
+        nextQuestionIndex++;
+        updateRoundProgress();
+        const feedback = document.getElementById('dialogueFeedback');
+        feedback.textContent = isCorrect
+            ? 'Resposta certa! A nave continua abastecendo.'
+            : `Resposta correta: ${activeQuestion.options[activeQuestion.correct]}. Continue para liberar o combustível.`;
+        feedback.hidden = false;
+        window.clearTimeout(questionTransitionTimeout);
+        questionTransitionTimeout = window.setTimeout(() => {
+            activeQuestion = null;
+            if (nextQuestionIndex >= questionsPerRound) {
+                document.getElementById('modalTitle').textContent = 'COMBUSTÍVEL LIBERADO';
+                document.getElementById('questionProgress').textContent = '4 PERGUNTAS RESPONDIDAS';
+                document.getElementById('modalDesc').textContent = `Seu caça está abastecido. Enfrente ${totalWaves} formações de dez alvos. Depois de abater a primeira formação, mísseis são acoplados às asas e a próxima leva aparece.`;
+                document.getElementById('modalOptions').replaceChildren();
+                feedback.hidden = true;
+                fuelLevel = 100;
+                updateFuelLevel();
+                updateStatusMessage('NAVE ABASTECIDA');
+                questionTransitionTimeout = window.setTimeout(() => {
+                    dialoguePanel.hidden = true;
+                    startArcadeGame();
+                }, 1400);
+            } else {
+                openChallenge();
+            }
+        }, 1100);
     }
 
-    async function showMissionEnd(won, correctAnswer = '') {
+    async function showMissionEnd(won) {
+        arcadeActive = false;
+        updateMissionObjectives(true);
+        document.getElementById('missionObjectives').hidden = true;
         endCard.classList.toggle('won', won);
-        document.getElementById('endTitle').textContent = won ? 'MISSÃO CONCLUÍDA!' : 'MISSÃO INTERROMPIDA';
-        document.getElementById('endMessage').textContent = won
-            ? `Você trouxe a nave para a Terra! ${correctAnswers} respostas certas e ${wrongAnswers} erradas.`
-            : `A nave foi atingida pelo meteoro. Resposta contabilizada como errada: ${correctAnswer}. Acertos: ${correctAnswers} · Erros: ${wrongAnswers}.`;
-        document.getElementById('restartButton').textContent = won ? '[ JOGAR NOVAMENTE ]' : '[ VOLTAR AO INÍCIO ]';
+        document.getElementById('endTitle').textContent = won ? 'MISSÃO CONCLUÍDA!' : 'CAÇA DESTRUÍDO';
+        const targetSummary = `Alvos acertados: ${targetsHit} · perdidos: ${targetsLost}. Pessoas resgatadas: ${peopleRescued}.`;
+        document.getElementById('endMessage').textContent = quizEnabled
+            ? won
+                ? `Você concluiu a missão. ${targetSummary} Acertos no quiz: ${correctAnswers} · erros: ${wrongAnswers}.`
+                : `O caça foi atingido três vezes. ${targetSummary} Acertos no quiz: ${correctAnswers} · erros: ${wrongAnswers}.`
+            : won
+                ? `Você concluiu as oito levas. ${targetSummary}`
+                : `O caça foi atingido três vezes. ${targetSummary}`;
+        document.getElementById('restartButton').textContent = '[ JOGAR NOVAMENTE ]';
         try {
             await saveGameResult();
         } catch (error) {
@@ -1574,23 +2523,23 @@
 
     document.getElementById('startButton').addEventListener('click', startMission);
     document.getElementById('restartButton').addEventListener('click', () => {
+        arcadeActive = false;
+        window.cancelAnimationFrame(arcadeAnimationFrame);
+        pressedKeys.clear();
+        arcadeCanvas.hidden = true;
+        document.getElementById('missionObjectives').hidden = true;
         activeQuestion = null;
         answerLocked = false;
         currentRoundToken = null;
         nextQuestionIndex = 0;
-        nextCuriosityIndex = 0;
         correctAnswers = 0;
         wrongAnswers = 0;
-        fuelLevel = 100;
+        fuelLevel = 0;
         questionOrder = createQuestionOrder();
-        curiosityOrder = shuffleItems(dorothyCuriosities);
-        rocket.style.opacity = '1';
-        parachute.classList.remove('deployed');
-        rocketProgress = 0;
-        rocketDeviation = 0;
-        window.cancelAnimationFrame(rocketAnimationFrame);
-        placeRocket(rocketProgress);
-        meteor.classList.remove('in-flight');
+        enemyShips = [];
+        playerShots = [];
+        playerMissiles = [];
+        enemyShots = [];
         endScreen.hidden = true;
         dialoguePanel.hidden = true;
         characterSpeech.hidden = true;
@@ -1598,7 +2547,7 @@
         titleScreen.hidden = false;
         updateRoundProgress();
         updateFuelLevel();
-        updateRouteMessage(false);
+        updateStatusMessage('AGUARDANDO PERGUNTAS');
     });
 
     document.querySelectorAll('#surveyForm input[type="text"]').forEach((input) => {
