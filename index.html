@@ -170,7 +170,7 @@
         .round-progress-fill {
             width: 0;
             height: 100%;
-            background: #ff1493;
+            background: #ffea00;
             box-shadow: 0 0 10px #ff1493;
             transition: width 700ms ease;
         }
@@ -437,6 +437,19 @@
             content: "";
         }
 
+        .rescue-transition-screen::before {
+            background: linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.24)), url("img/air-rescue-2.jpeg") center / cover no-repeat;
+        }
+
+        .rescue-transition-screen::after {
+            position: absolute;
+            z-index: 0;
+            inset: 0;
+            pointer-events: none;
+            background: repeating-linear-gradient(transparent 0 3px, rgba(0, 0, 0, 0.28) 4px);
+            content: "";
+        }
+
         .opening-progress {
             position: absolute;
             z-index: 1;
@@ -452,10 +465,15 @@
             width: 100%;
             height: 100%;
             border-radius: inherit;
-            background: linear-gradient(90deg, #39ff14, #00ff66);
+            background: #ffea00;
             transform: scaleX(0);
             transform-origin: left center;
             animation: opening-progress-fill 7s linear forwards;
+        }
+
+        .credential-progress-fill { animation: none; }
+        .credential-confirmation-progress .credential-progress-fill {
+            animation: opening-progress-fill 2s linear forwards;
         }
 
         @keyframes opening-progress-fill {
@@ -515,44 +533,79 @@
         [hidden] { display: none !important; }
 
         .survey-overlay {
-            position: fixed;
-            z-index: 30;
+            position: absolute;
+            z-index: 1;
             inset: 0;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            background: rgba(3, 8, 20, 0.88);
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 16px 28px 50px clamp(20px, 5vw, 64px);
+            background: transparent;
         }
 
         .survey-panel {
-            width: min(520px, 100%);
-            max-height: 100%;
+            width: min(420px, 36vw);
+            max-height: calc(100vh - 250px);
             overflow-y: auto;
-            padding: 24px;
-            border: 2px solid #ffff00;
-            border-radius: 10px;
-            background: #0d1b2f;
-            box-shadow: 0 0 25px rgba(255, 255, 0, 0.3);
+            padding: 11px 12px 5px;
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            border-radius: 12px;
+            background: rgba(9, 20, 38, 0.74);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.32);
+            color: #fff;
+            font-size: 0.64rem;
         }
 
-        .survey-panel h2 { margin-top: 0; color: var(--cyan); }
+        .survey-panel h2 {
+            margin: 0 0 8px;
+            color: #fff;
+            font-size: 0.84rem;
+            letter-spacing: 0.08em;
+            text-align: center;
+        }
         .survey-panel > p { line-height: 1.5; }
-        .survey-field { display: grid; gap: 6px; margin: 12px 0; }
+        .survey-fields {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            column-gap: 8px;
+        }
+        .survey-field { display: grid; gap: 3px; margin: 4px 0; }
         .survey-field input, .survey-field select {
             width: 100%;
-            padding: 10px;
+            padding: 5px 6px;
             border: 1px solid var(--blue);
             border-radius: 5px;
             background: #101c3a;
             color: #fff;
+            font: inherit;
         }
+        .survey-fieldset {
+            min-width: 0;
+            margin: 4px 0;
+            padding: 4px 6px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+        }
+        .survey-fieldset legend { padding: 0 3px; }
+        .survey-radio-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px 6px;
+        }
+        .survey-radio-option {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+        }
+        .survey-radio-option input { accent-color: var(--cyan); }
+        .survey-fieldset:disabled { opacity: 0.45; }
         .survey-field input:focus, .survey-field select:focus {
             border-color: #ff8c00;
             outline: 2px solid #ff8c00;
             outline-offset: 1px;
         }
-        .survey-submit { width: 100%; margin-top: 4px; }
+        .survey-submit { width: 100%; margin-top: 3px; padding: 6px 10px; font-size: 0.64rem; }
         #surveySubmit {
             border-color: #e67e00;
             background: #e67e00;
@@ -565,8 +618,14 @@
             box-shadow: 0 0 16px rgba(230, 126, 0, 0.6);
         }
         .survey-submit:disabled { cursor: wait; opacity: 0.65; }
-        .survey-error { min-height: 1.4em; color: #ff8d8d; }
+        .survey-error { min-height: 0; margin: 2px 0 0; color: #ff8d8d; }
         .survey-success { display: none; color: #7dff74; font-weight: bold; }
+
+        @media (max-width: 580px) {
+            .survey-fields { grid-template-columns: minmax(0, 1fr); }
+            .survey-overlay { align-items: center; justify-content: center; padding: 12px; }
+            .survey-panel { width: min(520px, 100%); max-height: calc(100vh - 24px); padding: 12px 12px 5px; }
+        }
 
         @media (max-width: 980px) {
             .game-info-layout {
@@ -782,64 +841,77 @@
     </div>
 </section>
 
+<section id="rescueTransitionScreen" class="opening-screen rescue-transition-screen" aria-label="Credenciais do piloto" hidden>
+    <div id="credentialProgress" class="opening-progress" role="progressbar" aria-label="Confirmação das credenciais" aria-valuemin="0" aria-valuemax="100" hidden>
+        <div class="opening-progress-fill credential-progress-fill"></div>
+    </div>
 <div id="surveyModal" class="survey-overlay" role="dialog" aria-modal="true" aria-labelledby="surveyTitle" aria-hidden="true" hidden>
     <form id="surveyForm" class="survey-panel">
-        <h2 id="surveyTitle">REGISTRO DO GAMER</h2>
-        <p>Registre-se para iniciar o jogo.</p>
+        <h2 id="surveyTitle">CREDENCIAIS DO PILOTO</h2>
         <div class="survey-fields">
             <label class="survey-field">
-                <span>Qual é o seu nome?</span>
-                <input name="name" type="text" maxlength="120" autocomplete="name" required>
+                <span>Nome:</span>
+                <input name="name" type="text" maxlength="120" autocomplete="name" pattern="[A-Za-zÀ-ÖØ-öø-ÿ ]+" title="Digite apenas letras e espaços." required>
             </label>
             <label class="survey-field">
-                <span>Qual é a sua escola?</span>
-                <input name="school" type="text" maxlength="120" required>
-            </label>
-            <label class="survey-field">
-                <span>Qual é a sua faixa etária?</span>
-                <select name="idade" required>
-                    <option value="">Escolha</option>
-                    <option value="7 a 8 anos">7 a 8 anos</option>
-                    <option value="9 a 11 anos">9 a 11 anos</option>
-                    <option value="12 a 14 anos">12 a 14 anos</option>
-                    <option value="15 a 17 anos">15 a 17 anos</option>
-                    <option value="18 ou mais">18 ou mais</option>
+                <span>Escola:</span>
+                <select name="school" required>
+                    <option value="">Selecione a escola</option>
+                    <option value="CIEP MUNICIPALIZADO CECÍLIO BARROS PESSOA">CIEP MUNICIPALIZADO CECÍLIO BARROS PESSOA</option>
+                    <option value="C.M FRANCISCO PORTO DE AGUIAR">C.M FRANCISCO PORTO DE AGUIAR</option>
+                    <option value="C.M. VERA FELIZARDO">C.M. VERA FELIZARDO</option>
+                    <option value="E.M ADOLPHO BERANGER JÚNIOR">E.M ADOLPHO BERANGER JÚNIOR</option>
+                    <option value="E.M. FRANCISCO LUIS SOBRINHO">E.M. FRANCISCO LUIS SOBRINHO</option>
+                    <option value="E.M. JOÃO TORRES">E.M. JOÃO TORRES</option>
+                    <option value="E.M. SAGRADO CORAÇÃO DE JESUS">E.M. SAGRADO CORAÇÃO DE JESUS</option>
+                    <option value="E.M. SOTERO TEIXEIRA DE SOUZA">E.M. SOTERO TEIXEIRA DE SOUZA</option>
                 </select>
             </label>
-            <label class="survey-field">
-                <span>Em que ano você estuda?</span>
-                <input name="grade" type="text" maxlength="120" required>
-            </label>
-            <label class="survey-field">
-                <span>Gostou desse jogo?</span>
-                <select name="liked_game" required>
-                    <option value="">Escolha</option>
-                    <option value="S">Sim</option>
-                    <option value="N">Não</option>
-                </select>
-            </label>
-            <label class="survey-field">
-                <span>Que nota você dá para a Expo XP?</span>
-                <select name="expo_xp_rating" required>
-                    <option value="">Escolha de 0 a 10</option>
-                    <option value="10">10</option>
-                    <option value="9">9</option>
-                    <option value="8">8</option>
-                    <option value="7">7</option>
-                    <option value="6">6</option>
-                    <option value="5">5</option>
-                    <option value="4">4</option>
-                    <option value="3">3</option>
-                    <option value="2">2</option>
-                    <option value="1">1</option>
-                    <option value="0">0</option>
-                </select>
-            </label>
+            <fieldset class="survey-fieldset">
+                <legend>Faixa de Idade:</legend>
+                <div class="survey-radio-options">
+                    <label class="survey-radio-option"><input type="radio" name="idade" value="7 a 8 anos" required>7 - 8 anos</label>
+                    <label class="survey-radio-option"><input type="radio" name="idade" value="9 a 11 anos" required>9 - 10 anos</label>
+                    <label class="survey-radio-option"><input type="radio" name="idade" value="12 a 14 anos" required>11 - 13 anos</label>
+                    <label class="survey-radio-option"><input type="radio" name="idade" value="15 a 17 anos" required>15 - 17 anos</label>
+                    <label class="survey-radio-option"><input type="radio" name="idade" value="18 ou mais" required>18 ou mais</label>
+                </div>
+            </fieldset>
+            <fieldset class="survey-fieldset">
+                <legend>Ensino:</legend>
+                <div class="survey-radio-options">
+                    <label class="survey-radio-option"><input type="radio" name="educationLevel" value="Ensino Fundamental" required>Ensino Fundamental</label>
+                    <label class="survey-radio-option"><input type="radio" name="educationLevel" value="Ensino Médio" required>Ensino Médio</label>
+                </div>
+            </fieldset>
+            <fieldset id="fundamentalYears" class="survey-fieldset" disabled>
+                <legend>Ensino Fundamental:</legend>
+                <div class="survey-radio-options">
+                    <label class="survey-radio-option"><input type="radio" name="fundamentalGrade" value="Ano 1" required>Ano 1</label>
+                    <label class="survey-radio-option"><input type="radio" name="fundamentalGrade" value="Ano 2" required>Ano 2</label>
+                    <label class="survey-radio-option"><input type="radio" name="fundamentalGrade" value="Ano 3" required>Ano 3</label>
+                    <label class="survey-radio-option"><input type="radio" name="fundamentalGrade" value="Ano 4" required>Ano 4</label>
+                    <label class="survey-radio-option"><input type="radio" name="fundamentalGrade" value="Ano 5" required>Ano 5</label>
+                    <label class="survey-radio-option"><input type="radio" name="fundamentalGrade" value="Ano 6" required>Ano 6</label>
+                    <label class="survey-radio-option"><input type="radio" name="fundamentalGrade" value="Ano 7" required>Ano 7</label>
+                    <label class="survey-radio-option"><input type="radio" name="fundamentalGrade" value="Ano 8" required>Ano 8</label>
+                    <label class="survey-radio-option"><input type="radio" name="fundamentalGrade" value="Ano 9" required>Ano 9</label>
+                </div>
+            </fieldset>
+            <fieldset id="highSchoolYears" class="survey-fieldset" disabled>
+                <legend>Ensino Médio:</legend>
+                <div class="survey-radio-options">
+                    <label class="survey-radio-option"><input type="radio" name="highschoolGrade" value="Ano 1" required>Ano 1</label>
+                    <label class="survey-radio-option"><input type="radio" name="highschoolGrade" value="Ano 2" required>Ano 2</label>
+                    <label class="survey-radio-option"><input type="radio" name="highschoolGrade" value="Ano 3" required>Ano 3</label>
+                </div>
+            </fieldset>
         </div>
-        <button id="surveySubmit" class="survey-submit" type="submit">CADASTRAR JOGADOR</button>
+        <button id="surveySubmit" class="survey-submit" type="submit">CADASTRAR CREDENCIAL</button>
         <p id="surveyError" class="survey-error" role="alert"></p>
     </form>
 </div>
+</section>
 
 <script>
     const questionBank = [
@@ -2571,6 +2643,8 @@
 
     window.setTimeout(() => {
         openingScreen.hidden = true;
+        const rescueTransitionScreen = document.getElementById('rescueTransitionScreen');
+        rescueTransitionScreen.hidden = false;
         registrationModal.hidden = false;
         registrationModal.setAttribute('aria-hidden', 'false');
         document.querySelector('#surveyForm [name="name"]').focus();
@@ -2761,23 +2835,35 @@
         updateStatusMessage('AGUARDANDO PERGUNTAS');
     });
 
-    document.querySelectorAll('#surveyForm input[type="text"]').forEach((input) => {
+    document.querySelectorAll('#surveyForm input[name="name"]').forEach((input) => {
         input.addEventListener('input', () => {
             const value = input.value;
             const selectionStart = input.selectionStart;
             const selectionEnd = input.selectionEnd;
-            const uppercaseValue = value.toLocaleUpperCase('pt-BR');
-            if (uppercaseValue === value) {
+            const normalizeName = (text) => text
+                .replace(/[^\p{L} ]/gu, '')
+                .replace(/ {2,}/g, ' ')
+                .toLocaleUpperCase('pt-BR');
+            const filteredValue = normalizeName(value);
+            if (filteredValue === value) {
                 return;
             }
 
-            input.value = uppercaseValue;
+            input.value = filteredValue;
             if (selectionStart !== null && selectionEnd !== null) {
                 input.setSelectionRange(
-                    value.slice(0, selectionStart).toLocaleUpperCase('pt-BR').length,
-                    value.slice(0, selectionEnd).toLocaleUpperCase('pt-BR').length
+                    normalizeName(value.slice(0, selectionStart)).length,
+                    normalizeName(value.slice(0, selectionEnd)).length
                 );
             }
+        });
+    });
+
+    document.querySelectorAll('#surveyForm input[name="educationLevel"]').forEach((input) => {
+        input.addEventListener('change', () => {
+            const fundamentalSelected = input.value === 'Ensino Fundamental';
+            document.getElementById('fundamentalYears').disabled = !fundamentalSelected;
+            document.getElementById('highSchoolYears').disabled = fundamentalSelected;
         });
     });
 
@@ -2787,13 +2873,13 @@
         const submitButton = document.getElementById('surveySubmit');
         const errorMessage = document.getElementById('surveyError');
         const formData = new FormData(form);
+        const educationLevel = formData.get('educationLevel');
+        const grade = formData.get(educationLevel === 'Ensino Fundamental' ? 'fundamentalGrade' : 'highschoolGrade');
         const payload = {
             name: formData.get('name'),
             school: formData.get('school'),
-            grade: formData.get('grade'),
-            idade: formData.get('idade'),
-            liked_game: formData.get('liked_game'),
-            expo_xp_rating: Number(formData.get('expo_xp_rating'))
+            grade: `${educationLevel} - ${grade}`,
+            idade: formData.get('idade')
         };
 
         submitButton.disabled = true;
@@ -2833,6 +2919,14 @@
             currentRoundToken = null;
             questionOrder = createQuestionOrder(currentAge);
             gameResultSaved = false;
+            const surveyModal = document.getElementById('surveyModal');
+            const rescueTransitionScreen = document.getElementById('rescueTransitionScreen');
+            const credentialProgress = document.getElementById('credentialProgress');
+            surveyModal.hidden = true;
+            surveyModal.setAttribute('aria-hidden', 'true');
+            rescueTransitionScreen.classList.add('credential-confirmation-progress');
+            credentialProgress.hidden = false;
+            const progressDelay = new Promise((resolve) => window.setTimeout(resolve, 2000));
             displayPlayerRanking({
                 name: payload.name,
                 school: payload.school,
@@ -2847,9 +2941,10 @@
                 document.getElementById('playerRank').textContent = 'Indisponível';
             }
 
-            const surveyModal = document.getElementById('surveyModal');
-            surveyModal.hidden = true;
-            surveyModal.setAttribute('aria-hidden', 'true');
+            await progressDelay;
+            rescueTransitionScreen.hidden = true;
+            credentialProgress.hidden = true;
+            rescueTransitionScreen.classList.remove('credential-confirmation-progress');
             document.getElementById('startButton').focus();
         } catch (error) {
             errorMessage.textContent = error instanceof TypeError

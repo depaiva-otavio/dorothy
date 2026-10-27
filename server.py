@@ -40,8 +40,8 @@ def initialize_database():
                 school TEXT NOT NULL,
                 grade TEXT NOT NULL,
                 idade TEXT NOT NULL CHECK (idade IN ('7 a 8 anos', '9 a 11 anos', '12 a 14 anos', '15 a 17 anos', '18 ou mais')),
-                liked_game TEXT NOT NULL CHECK (liked_game IN ('S', 'N')),
-                expo_xp_rating INTEGER NOT NULL CHECK (expo_xp_rating BETWEEN 0 AND 10),
+                liked_game TEXT CHECK (liked_game IN ('S', 'N')),
+                expo_xp_rating INTEGER CHECK (expo_xp_rating BETWEEN 0 AND 10),
                 pontos INTEGER NOT NULL DEFAULT 0 CHECK (pontos BETWEEN 0 AND 999),
                 created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
             )
@@ -61,6 +61,37 @@ def initialize_database():
                 "ALTER TABLE surveys ADD COLUMN idade TEXT NOT NULL DEFAULT '18 ou mais' "
                 "CHECK (idade IN ('7 a 8 anos', '9 a 11 anos', '12 a 14 anos', '15 a 17 anos', '18 ou mais'))"
             )
+        survey_columns = {
+            column[1]: column
+            for column in connection.execute("PRAGMA table_info(surveys)").fetchall()
+        }
+        if survey_columns["liked_game"][3] or survey_columns["expo_xp_rating"][3]:
+            connection.execute("PRAGMA foreign_keys = OFF")
+            connection.execute(
+                """
+                CREATE TABLE surveys_updated (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    school TEXT NOT NULL,
+                    grade TEXT NOT NULL,
+                    idade TEXT NOT NULL CHECK (idade IN ('7 a 8 anos', '9 a 11 anos', '12 a 14 anos', '15 a 17 anos', '18 ou mais')),
+                    liked_game TEXT CHECK (liked_game IN ('S', 'N')),
+                    expo_xp_rating INTEGER CHECK (expo_xp_rating BETWEEN 0 AND 10),
+                    pontos INTEGER NOT NULL DEFAULT 0 CHECK (pontos BETWEEN 0 AND 999),
+                    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+                )
+                """
+            )
+            connection.execute(
+                """
+                INSERT INTO surveys_updated
+                    (id, name, school, grade, idade, liked_game, expo_xp_rating, pontos, created_at)
+                SELECT id, name, school, grade, idade, liked_game, expo_xp_rating, pontos, created_at
+                FROM surveys
+                """
+            )
+            connection.execute("DROP TABLE surveys")
+            connection.execute("ALTER TABLE surveys_updated RENAME TO surveys")
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS game_results (
@@ -218,30 +249,18 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
             self._send_json(400, {"error": "Selecione uma faixa etária válida."})
             return
 
-        liked_game = payload.get("liked_game")
-        if liked_game not in ("S", "N"):
-            self._send_json(400, {"error": "Informe se gostou do jogo."})
-            return
-
-        rating = payload.get("expo_xp_rating")
-        if isinstance(rating, bool) or not isinstance(rating, int) or not 0 <= rating <= 10:
-            self._send_json(400, {"error": "A nota Expo XP deve ser um número de 0 a 10."})
-            return
-
         try:
             with sqlite3.connect(DATABASE) as connection:
                 cursor = connection.execute(
                     """
-                    INSERT INTO surveys (name, school, grade, idade, liked_game, expo_xp_rating)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO surveys (name, school, grade, idade)
+                    VALUES (?, ?, ?, ?)
                     """,
                     (
                         values["name"],
                         values["school"],
                         values["grade"],
                         age,
-                        liked_game,
-                        rating,
                     ),
                 )
                 registration_count = connection.execute(
