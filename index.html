@@ -432,70 +432,34 @@
         .opening-screen::before {
             position: absolute;
             z-index: 0;
-            inset: -6px;
-            background: linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.24)), url("img/apollo11-2-landscape.jpg") center / cover no-repeat;
-            content: "";
-            filter: blur(2px);
-            transform: scale(1.02);
-        }
-
-        .opening-screen::after {
-            position: absolute;
-            z-index: 0;
             inset: 0;
-            pointer-events: none;
-            background: repeating-linear-gradient(transparent 0 3px, rgba(0, 0, 0, 0.28) 4px);
+            background: url("img/air-rescue.jpeg") center / cover no-repeat;
             content: "";
         }
 
-        .opening-content {
-            position: relative;
+        .opening-progress {
+            position: absolute;
             z-index: 1;
-            display: flex;
-            width: min(1500px, 100%);
-            align-items: center;
-            justify-content: center;
-            gap: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 12px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.7);
         }
 
-        .opening-dorothy {
-            width: min(44vw, 560px);
-            height: min(72vh, 640px);
-            object-fit: contain;
-            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 18px rgba(255, 255, 255, 0.72)) drop-shadow(0 18px 28px rgba(0, 0, 0, 0.68));
+        .opening-progress-fill {
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #39ff14, #00ff66);
+            transform: scaleX(0);
+            transform-origin: left center;
+            animation: opening-progress-fill 7s linear forwards;
         }
 
-        .opening-copy {
-            align-self: flex-start;
-            margin-top: 80px;
-            margin-left: -120px;
-        }
-
-        .opening-title {
-            margin: 0;
-            color: #ff1493;
-            font-family: 'Lobster', cursive;
-            font-size: clamp(2rem, 8vw, 150px);
-            font-weight: 400;
-            line-height: 1;
-            white-space: nowrap;
-            -webkit-text-stroke: 4px #000;
-            paint-order: stroke fill;
-            text-shadow: 0 1px 0 #ff91ca, 0 2px 0 #ec087f, 0 4px 0 #cb006b, 0 6px 0 #a50058, 0 8px 0 #780040, 0 10px 12px rgba(0, 0, 0, 0.9), 0 0 8px #fff, 0 0 22px rgba(255, 255, 255, 0.95), 0 0 38px rgba(255, 255, 255, 0.72), 0 0 18px #ff1493, 0 0 44px rgba(255, 20, 147, 0.95);
-            transform: perspective(700px) rotateY(-5deg);
-        }
-
-        .opening-subtitle {
-            margin: 2px 0 0;
-            color: #ffeb00;
-            font-family: 'Lobster', cursive;
-            font-size: clamp(1rem, 3.4vw, 60px);
-            line-height: 1.15;
-            white-space: nowrap;
-            text-align: center;
-            -webkit-text-stroke: 3px #000;
-            paint-order: stroke fill;
-            text-shadow: 0 3px 5px rgba(0, 0, 0, 0.95), 0 0 7px #fff, 0 0 18px rgba(255, 255, 255, 0.95), 0 0 32px rgba(255, 255, 255, 0.7), 0 0 14px #ffeb00, 0 0 28px #ffb700, 0 0 46px rgba(255, 183, 0, 0.95);
+        @keyframes opening-progress-fill {
+            to { transform: scaleX(1); }
         }
 
         .title-card, .end-card {
@@ -612,9 +576,6 @@
         }
 
         @media (max-width: 680px) {
-            .opening-dorothy { width: 40vw; height: 48vh; }
-            .opening-copy { margin-top: 6vh; margin-left: -32px; }
-            .opening-title { text-align: left; transform: none; }
             .mission-objectives {
                 bottom: 232px;
                 right: 6px;
@@ -816,12 +777,8 @@
 </main>
 
 <section id="openingScreen" class="opening-screen" aria-labelledby="openingTitle">
-    <div class="opening-content">
-        <img class="opening-dorothy" src="img/dorothyvaughan.png" alt="">
-        <div class="opening-copy">
-            <h1 id="openingTitle" class="opening-title">Dorothy Vaughan</h1>
-            <p class="opening-subtitle">Uma estrela além do tempo</p>
-        </div>
+    <div class="opening-progress" role="progressbar" aria-label="Carregamento do jogo" aria-valuemin="0" aria-valuemax="100">
+        <div class="opening-progress-fill"></div>
     </div>
 </section>
 
@@ -1261,6 +1218,7 @@
     const rescueTargetCount = 20;
     const regularRescueTargetCount = rescueTargetCount - 3;
     const minimumIslandDistance = 240;
+    const minimumRockCharacterDistance = 340;
     const movementKeys = new Set([
         'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
         'KeyA', 'KeyD', 'KeyW', 'KeyS', 'Space'
@@ -1414,6 +1372,39 @@
         )) ?? null;
     }
 
+    function keepRocksAwayFromCharacters() {
+        const characters = scenery.filter((feature) =>
+            feature.character && !feature.character.rescued
+        );
+        if (!characters.length) return;
+
+        const firstCharacterY = Math.min(...characters.map((feature) => feature.y));
+        const margin = Math.min(80, arcadeWidth / 2);
+        scenery.forEach((feature, index) => {
+            if (
+                feature.kind !== 'rocks'
+                || !characters.some((character) =>
+                    Math.hypot(feature.x - character.x, feature.y - character.y) < minimumRockCharacterDistance
+                )
+            ) return;
+
+            const candidates = [
+                margin,
+                arcadeWidth - margin,
+                ...Array.from({ length: 24 }, () => margin + Math.random() * (arcadeWidth - margin * 2))
+            ];
+            const separatedX = candidates.find((x) => characters.every((character) =>
+                Math.hypot(x - character.x, feature.y - character.y) >= minimumRockCharacterDistance
+            ));
+            if (separatedX !== undefined) {
+                feature.x = separatedX;
+                return;
+            }
+
+            feature.y = firstCharacterY - minimumRockCharacterDistance - index * minimumIslandDistance;
+        });
+    }
+
     function resizeArcadeCanvas() {
         const bounds = arcadeCanvas.getBoundingClientRect();
         if (bounds.width === 0 || bounds.height === 0) return;
@@ -1444,6 +1435,7 @@
                 dorothyIsland.size = Math.max(dorothyIsland.size, 0.95);
                 dorothyIsland.character = { key: 'dorothy', rescued: false };
             }
+            keepRocksAwayFromCharacters();
             scenery
                 .filter((feature) => feature.kind === 'island')
                 .sort((first, second) => Number(Boolean(second.character)) - Number(Boolean(first.character)))
@@ -1794,10 +1786,11 @@
         arcadeContext.fillStyle = '#fff8df';
         arcadeContext.strokeStyle = '#263747';
         arcadeContext.lineWidth = 2;
-        const bubbleHeight = 12 + details.lines.length * 18;
+        const bubbleLineHeight = 21;
+        const bubbleHeight = 16 + details.lines.length * bubbleLineHeight;
         const bubbleTop = -130 - bubbleHeight;
         arcadeContext.beginPath();
-        arcadeContext.roundRect(-112, bubbleTop, 224, bubbleHeight, 10);
+        arcadeContext.roundRect(-130, bubbleTop, 260, bubbleHeight, 10);
         arcadeContext.moveTo(-22, -130);
         arcadeContext.lineTo(-14, -113);
         arcadeContext.lineTo(-6, -130);
@@ -1805,10 +1798,10 @@
         arcadeContext.fill();
         arcadeContext.stroke();
         arcadeContext.fillStyle = '#172b3a';
-        arcadeContext.font = 'bold 12px "Courier New", monospace';
+        arcadeContext.font = 'bold 14px "Courier New", monospace';
         arcadeContext.textAlign = 'left';
         details.lines.forEach((line, index) => {
-            arcadeContext.fillText(line, -98, bubbleTop + 20 + index * 18);
+            arcadeContext.fillText(line, -118, bubbleTop + 23 + index * bubbleLineHeight);
         });
         arcadeContext.restore();
     }
@@ -2243,6 +2236,7 @@
                 addRandomRescuee(feature);
             }
         });
+        keepRocksAwayFromCharacters();
 
         enemyShips.forEach((enemy) => {
             if (!enemy.alive) return;
