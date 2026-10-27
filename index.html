@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>O Código de Dorothy Vaughan — Missão Espacial</title>
+    <title>Air Rescue</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
@@ -2874,11 +2874,12 @@
         const errorMessage = document.getElementById('surveyError');
         const formData = new FormData(form);
         const educationLevel = formData.get('educationLevel');
-        const grade = formData.get(educationLevel === 'Ensino Fundamental' ? 'fundamentalGrade' : 'highschoolGrade');
+        const gradeYear = formData.get(educationLevel === 'Ensino Fundamental' ? 'fundamentalGrade' : 'highschoolGrade');
         const payload = {
             name: formData.get('name'),
             school: formData.get('school'),
-            grade: `${educationLevel} - ${grade}`,
+            education_level: educationLevel,
+            grade_year: gradeYear,
             idade: formData.get('idade')
         };
 

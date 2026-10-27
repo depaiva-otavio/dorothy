@@ -18,6 +18,10 @@ AGE_GROUPS = (
     "15 a 17 anos",
     "18 ou mais",
 )
+EDUCATION_LEVELS = {
+    "Ensino Fundamental": tuple(f"Ano {year}" for year in range(1, 10)),
+    "Ensino Médio": tuple(f"Ano {year}" for year in range(1, 4)),
+}
 QUESTIONS_PER_ROUND = 4
 QUESTION_COUNTS_BY_AGE = {
     "7 a 8 anos": 100,
@@ -39,6 +43,8 @@ def initialize_database():
                 name TEXT NOT NULL,
                 school TEXT NOT NULL,
                 grade TEXT NOT NULL,
+                education_level TEXT CHECK (education_level IN ('Ensino Fundamental', 'Ensino Médio')),
+                grade_year TEXT CHECK (grade_year IN ('Ano 1', 'Ano 2', 'Ano 3', 'Ano 4', 'Ano 5', 'Ano 6', 'Ano 7', 'Ano 8', 'Ano 9')),
                 idade TEXT NOT NULL CHECK (idade IN ('7 a 8 anos', '9 a 11 anos', '12 a 14 anos', '15 a 17 anos', '18 ou mais')),
                 liked_game TEXT CHECK (liked_game IN ('S', 'N')),
                 expo_xp_rating INTEGER CHECK (expo_xp_rating BETWEEN 0 AND 10),
@@ -47,10 +53,7 @@ def initialize_database():
             )
             """
         )
-        survey_columns = {
-            column[1]
-            for column in connection.execute("PRAGMA table_info(surveys)").fetchall()
-        }
+        survey_columns = {column[1] for column in connection.execute("PRAGMA table_info(surveys)").fetchall()}
         if "pontos" not in survey_columns:
             connection.execute(
                 "ALTER TABLE surveys ADD COLUMN pontos INTEGER NOT NULL DEFAULT 0 "
@@ -61,6 +64,25 @@ def initialize_database():
                 "ALTER TABLE surveys ADD COLUMN idade TEXT NOT NULL DEFAULT '18 ou mais' "
                 "CHECK (idade IN ('7 a 8 anos', '9 a 11 anos', '12 a 14 anos', '15 a 17 anos', '18 ou mais'))"
             )
+        if "education_level" not in survey_columns:
+            connection.execute(
+                "ALTER TABLE surveys ADD COLUMN education_level TEXT "
+                "CHECK (education_level IN ('Ensino Fundamental', 'Ensino Médio'))"
+            )
+        if "grade_year" not in survey_columns:
+            connection.execute(
+                "ALTER TABLE surveys ADD COLUMN grade_year TEXT "
+                "CHECK (grade_year IN ('Ano 1', 'Ano 2', 'Ano 3', 'Ano 4', 'Ano 5', 'Ano 6', 'Ano 7', 'Ano 8', 'Ano 9'))"
+            )
+        for survey_id, grade in connection.execute(
+            "SELECT id, grade FROM surveys WHERE education_level IS NULL OR grade_year IS NULL"
+        ):
+            education_level, separator, grade_year = grade.partition(" - ")
+            if separator and grade_year in EDUCATION_LEVELS.get(education_level, ()):
+                connection.execute(
+                    "UPDATE surveys SET education_level = ?, grade_year = ? WHERE id = ?",
+                    (education_level, grade_year, survey_id),
+                )
         survey_columns = {
             column[1]: column
             for column in connection.execute("PRAGMA table_info(surveys)").fetchall()
@@ -235,14 +257,24 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
             self._send_json(400, {"error": "Os dados do formulário são inválidos."})
             return
 
-        text_fields = ("name", "school", "grade")
+        text_fields = ("name", "school")
         values = {}
         for field in text_fields:
             value = payload.get(field)
             if not isinstance(value, str) or not value.strip() or len(value.strip()) > 120:
-                self._send_json(400, {"error": "Preencha nome, escola e série (até 120 caracteres)."})
+                self._send_json(400, {"error": "Preencha nome e escola (até 120 caracteres)."})
                 return
             values[field] = value.strip()
+
+        education_level = payload.get("education_level")
+        grade_year = payload.get("grade_year")
+        if (
+            not isinstance(education_level, str)
+            or not isinstance(grade_year, str)
+            or grade_year not in EDUCATION_LEVELS.get(education_level, ())
+        ):
+            self._send_json(400, {"error": "Selecione um nível de ensino e ano válidos."})
+            return
 
         age = payload.get("idade")
         if age not in AGE_GROUPS:
@@ -253,13 +285,15 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
             with sqlite3.connect(DATABASE) as connection:
                 cursor = connection.execute(
                     """
-                    INSERT INTO surveys (name, school, grade, idade)
-                    VALUES (?, ?, ?, ?)
+                    INSERT INTO surveys (name, school, grade, education_level, grade_year, idade)
+                    VALUES (?, ?, ?, ?, ?, ?)
                     """,
                     (
                         values["name"],
                         values["school"],
-                        values["grade"],
+                        f"{education_level} - {grade_year}",
+                        education_level,
+                        grade_year,
                         age,
                     ),
                 )
