@@ -60,9 +60,9 @@
         .arcade-canvas {
             position: absolute;
             z-index: 3;
-            inset: 52px 0 145px;
+            inset: 0 0 145px;
             width: 100%;
-            height: calc(100% - 197px);
+            height: calc(100% - 145px);
             touch-action: none;
         }
 
@@ -71,7 +71,7 @@
         .mission-objectives {
             position: absolute;
             z-index: 5;
-            top: 64px;
+            bottom: 155px;
             right: 14px;
             width: min(300px, 36vw);
             padding: 10px 12px;
@@ -118,32 +118,6 @@
 
         .mission-objective.is-complete .mission-objective-status { color: #7dff74; }
         .mission-objective.is-failed .mission-objective-status { color: #ff8d8d; }
-
-        .terminal-header {
-            position: absolute;
-            z-index: 2;
-            top: 0;
-            left: 0;
-            display: flex;
-            width: 100%;
-            min-height: 52px;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 10px 22px;
-            border-bottom: 1px dashed rgba(56, 189, 248, 0.42);
-            color: var(--blue);
-            font-size: clamp(0.65rem, 1.3vw, 0.88rem);
-            letter-spacing: 0.04em;
-            white-space: nowrap;
-        }
-
-        .terminal-header > span {
-            min-width: 0;
-            overflow: hidden;
-            flex: 1;
-            text-overflow: ellipsis;
-        }
 
         .game-info-layout {
             position: absolute;
@@ -315,7 +289,7 @@
             transition: width 400ms ease, background-color 400ms ease;
         }
 
-        .dorothy-sprite {
+        .dorothy-sprite, .christina-sprite, .fei-fei-li-sprite {
             display: none;
         }
 
@@ -435,7 +409,7 @@
         .title-screen, .end-screen {
             position: absolute;
             z-index: 10;
-            inset: 52px 0 0;
+            inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -638,12 +612,11 @@
         }
 
         @media (max-width: 680px) {
-            .terminal-header { min-height: 48px; padding: 8px 12px; }
             .opening-dorothy { width: 40vw; height: 48vh; }
             .opening-copy { margin-top: 6vh; margin-left: -32px; }
             .opening-title { text-align: left; transform: none; }
             .mission-objectives {
-                top: 56px;
+                bottom: 232px;
                 right: 6px;
                 width: min(250px, calc(100vw - 20px));
                 padding: 7px 9px;
@@ -656,7 +629,7 @@
                 background: #000;
             }
             .game-info-layout {
-                top: 56px;
+                top: 8px;
                 right: 8px;
                 bottom: 8px;
                 left: 8px;
@@ -698,7 +671,6 @@
             }
             .route-message { height: 34px; }
             .fuel-track { width: 64px; height: 8px; }
-            .terminal-header > span { font-size: 0.56rem; }
             .progress-track { width: clamp(70px, 18vw, 120px); height: 14px; }
             .dialogue-panel {
                 height: 103px;
@@ -717,10 +689,10 @@
             .character-speech { height: 103px; padding: 8px; font-size: 0.68rem; }
             .character-speech--curiosity { height: 70px; padding: 0 8px; font-size: 0.58rem; line-height: 68px; }
             .arcade-canvas {
-                inset: 52px 0 225px;
-                height: calc(100% - 277px);
+                inset: 0 0 225px;
+                height: calc(100% - 225px);
             }
-            .title-screen, .end-screen { inset: 48px 0 0; }
+            .title-screen, .end-screen { inset: 0; }
             .title-card, .end-card { padding: 24px 18px; }
             .credits-footer { font-size: 0.72rem; }
         }
@@ -740,15 +712,12 @@
 <body>
 
 <main class="game-container">
-    <header class="terminal-header">
-        <span>&gt; SETAS / WASD MOVER // SEGURE ESPAÇO OU BOTÃO ESQUERDO PARA ATIRAR</span>
-    </header>
     <canvas id="arcadeCanvas" class="arcade-canvas" aria-label="Jogo de combate aéreo: mova a nave com as setas ou WASD e segure a barra de espaço ou o botão esquerdo do mouse para atirar. Em telas sensíveis ao toque, arraste para guiar." hidden></canvas>
     <aside id="missionObjectives" class="mission-objectives" aria-labelledby="missionObjectivesTitle" aria-live="polite" hidden>
         <h2 id="missionObjectivesTitle">OBJETIVOS DA MISSÃO</h2>
         <ul>
             <li id="rescueObjective" class="mission-objective">
-                <span class="mission-objective-label">Resgate de heroínas</span>
+                <span class="mission-objective-label">Resgate de pessoas</span>
                 <span id="rescueObjectiveStatus" class="mission-objective-status">0/20</span>
             </li>
             <li id="seventyPercentObjective" class="mission-objective">
@@ -821,6 +790,8 @@
     </div>
 
     <img class="dorothy-sprite" src="img/dorothyvaughan.png" alt="Dorothy Vaughan">
+    <img class="christina-sprite" src="img/ChristinaHammockKoch.png" alt="Christina Hammock Koch">
+    <img class="fei-fei-li-sprite" src="img/Fei-FeiLi.png" alt="Fei-Fei Li">
 
     <section id="titleScreen" class="title-screen">
         <div class="title-card">
@@ -1215,7 +1186,44 @@
     let questionOrder = createQuestionOrder("7 a 8 anos");
     const arcadeCanvas = document.getElementById('arcadeCanvas');
     const arcadeContext = arcadeCanvas.getContext('2d');
+    let gameAudioContext = null;
     const dorothyIslandSprite = document.querySelector('.dorothy-sprite');
+    const christinaSprite = document.querySelector('.christina-sprite');
+    const feiFeiLiSprite = document.querySelector('.fei-fei-li-sprite');
+    const featuredCharacters = {
+        dorothy: {
+            image: dorothyIslandSprite,
+            name: 'Dorothy Vaughan',
+            lines: [
+                'Dorothy Vaughan:',
+                'matemática,',
+                'programadora e',
+                'cientista da computação',
+                'que trabalhou na NASA.'
+            ]
+        },
+        christina: {
+            image: christinaSprite,
+            name: 'Christina Hammock Koch',
+            lines: [
+                'Christina Hammock Koch,',
+                'engenheira e astronauta',
+                'norte-americana da classe',
+                '2013 da NASA.'
+            ]
+        },
+        feiFeiLi: {
+            image: feiFeiLiSprite,
+            name: 'Fei-Fei Li',
+            lines: [
+                'Fei-Fei Li – Pioneira',
+                'na visão computacional',
+                'e criadora do ImageNet',
+                '- iA, Deep Learning,',
+                'Ciência da Computação.'
+            ]
+        }
+    };
     if (!arcadeContext) throw new Error('Não foi possível iniciar a área de jogo.');
     const pressedKeys = new Set();
     let arcadeActive = false;
@@ -1235,6 +1243,9 @@
     let targetsHit = 0;
     let targetsLost = 0;
     let peopleRescued = 0;
+    let christinaSpawned = false;
+    let feiFeiLiSpawned = false;
+    let featuredCharactersPassed = false;
     let damageTaken = false;
     let wavesSpawned = 0;
     let enemiesSpawnedInWave = 0;
@@ -1248,21 +1259,27 @@
     const enemiesPerWave = 10;
     const totalWaves = enemyTargetCount / enemiesPerWave;
     const rescueTargetCount = 20;
-    const regularRescueTargetCount = rescueTargetCount - 1;
+    const regularRescueTargetCount = rescueTargetCount - 3;
+    const minimumIslandDistance = 240;
     const movementKeys = new Set([
         'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
         'KeyA', 'KeyD', 'KeyW', 'KeyS', 'Space'
     ]);
 
     function regularRescueLimit() {
-        const dorothyStillNeedsRescue = scenery.some((feature) =>
-            feature.hasDorothy && !feature.dorothyRescued
+        const featuredCharacterStillNeedsRescue = !feiFeiLiSpawned || scenery.some((feature) =>
+            feature.character && !feature.character.rescued
         );
-        return dorothyStillNeedsRescue ? regularRescueTargetCount : rescueTargetCount;
+        return featuredCharacterStillNeedsRescue ? regularRescueTargetCount : rescueTargetCount;
     }
 
     function addRandomRescuee(feature) {
-        if (feature.kind !== 'island' || feature.hasDorothy || peopleRescued >= regularRescueLimit()) {
+        if (
+            !featuredCharactersPassed
+            || feature.kind !== 'island'
+            || feature.character
+            || peopleRescued >= regularRescueLimit()
+        ) {
             feature.rescuee = null;
             return;
         }
@@ -1271,6 +1288,130 @@
             y: (Math.random() - 0.5) * 30,
             rescued: false
         };
+    }
+
+    function getGameAudioContext() {
+        if (gameAudioContext) {
+            resumeGameAudio(gameAudioContext);
+            return gameAudioContext;
+        }
+        if (!window.AudioContext) return null;
+
+        try {
+            gameAudioContext = new window.AudioContext();
+        } catch (error) {
+            console.error('Não foi possível iniciar o áudio do jogo.', error);
+            return null;
+        }
+
+        resumeGameAudio(gameAudioContext);
+        return gameAudioContext;
+    }
+
+    function resumeGameAudio(audio) {
+        if (audio.state === 'running') return;
+        audio.resume().catch((error) => {
+            console.error('Não foi possível ativar o áudio do jogo.', error);
+        });
+    }
+
+    function playArcadeSound(sound) {
+        const audio = getGameAudioContext();
+        if (!audio) return;
+
+        const sounds = {
+            playerShot: { type: 'square', startFrequency: 880, endFrequency: 260, duration: 0.09, volume: 0.09 },
+            rocket: { type: 'sawtooth', startFrequency: 190, endFrequency: 55, duration: 0.38, volume: 0.055 },
+            enemyShot: { type: 'triangle', startFrequency: 360, endFrequency: 145, duration: 0.15, volume: 0.09 }
+        };
+        const settings = sounds[sound];
+        if (!settings) return;
+
+        const now = audio.currentTime;
+        const oscillator = audio.createOscillator();
+        const gain = audio.createGain();
+        oscillator.type = settings.type;
+        oscillator.frequency.setValueAtTime(settings.startFrequency, now);
+        oscillator.frequency.exponentialRampToValueAtTime(settings.endFrequency, now + settings.duration);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(settings.volume, now + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + settings.duration);
+        oscillator.connect(gain);
+        gain.connect(audio.destination);
+        oscillator.start(now);
+        oscillator.stop(now + settings.duration);
+    }
+
+    function playRescueSound() {
+        const audio = getGameAudioContext();
+        if (!audio) return;
+
+        const now = audio.currentTime;
+        const syllables = [
+            {
+                start: 0,
+                duration: 0.34,
+                pitch: [420, 680],
+                formants: [[780, 720], [1250, 1150], [2500, 2450]]
+            },
+            {
+                start: 0.24,
+                duration: 0.58,
+                pitch: [580, 820],
+                formants: [[420, 340], [980, 780], [2300, 2200]]
+            }
+        ];
+
+        syllables.forEach((syllable) => {
+            const voice = audio.createOscillator();
+            const envelope = audio.createGain();
+            voice.type = 'sawtooth';
+            voice.frequency.setValueAtTime(syllable.pitch[0], now + syllable.start);
+            voice.frequency.exponentialRampToValueAtTime(
+                syllable.pitch[1],
+                now + syllable.start + syllable.duration
+            );
+            envelope.gain.setValueAtTime(0.0001, now + syllable.start);
+            envelope.gain.exponentialRampToValueAtTime(0.12, now + syllable.start + 0.035);
+            envelope.gain.setValueAtTime(0.12, now + syllable.start + syllable.duration * 0.58);
+            envelope.gain.exponentialRampToValueAtTime(
+                0.0001,
+                now + syllable.start + syllable.duration
+            );
+
+            syllable.formants.forEach(([startFrequency, endFrequency], index) => {
+                const formant = audio.createBiquadFilter();
+                const formantGain = audio.createGain();
+                formant.type = 'bandpass';
+                formant.frequency.setValueAtTime(startFrequency, now + syllable.start);
+                formant.frequency.exponentialRampToValueAtTime(
+                    endFrequency,
+                    now + syllable.start + syllable.duration
+                );
+                formant.Q.setValueAtTime(5, now + syllable.start);
+                formantGain.gain.setValueAtTime(index === 0 ? 1 : 0.65, now + syllable.start);
+                voice.connect(formant);
+                formant.connect(formantGain);
+                formantGain.connect(envelope);
+            });
+
+            envelope.connect(audio.destination);
+            voice.start(now + syllable.start);
+            voice.stop(now + syllable.start + syllable.duration);
+        });
+    }
+
+    function findSeparatedIslandX(feature) {
+        const margin = Math.min(80, arcadeWidth / 2);
+        const candidates = [
+            feature.x,
+            ...Array.from({ length: 24 }, () => margin + Math.random() * (arcadeWidth - margin * 2))
+        ];
+        return candidates.find((x) => scenery.every((other) =>
+            other === feature
+            || other.kind !== 'island'
+            || Math.hypot(x - other.x, feature.y - other.y) >= minimumIslandDistance
+        )) ?? null;
     }
 
     function resizeArcadeCanvas() {
@@ -1282,30 +1423,43 @@
         arcadeCanvas.width = Math.round(arcadeWidth * pixelRatio);
         arcadeCanvas.height = Math.round(arcadeHeight * pixelRatio);
         arcadeContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-        const sceneryCount = Math.max(6, Math.ceil(arcadeHeight / 165) + 2);
-        scenery = Array.from({ length: sceneryCount }, (_, index) => ({
-            x: index % 5 === 2
-                ? arcadeWidth / 2
-                : index % 2 === 0
-                    ? arcadeWidth * (0.14 + Math.random() * 0.22)
-                    : arcadeWidth * (0.64 + Math.random() * 0.22),
-            y: (index / sceneryCount) * arcadeHeight,
-            size: 0.56 + Math.random() * 0.42,
-            kind: index % 5 === 2 ? 'bridge' : index % 3 === 0 ? 'island' : 'rocks',
-            seed: Math.random() * 10
-        }));
-        const dorothyIsland = scenery.find((feature) => feature.kind === 'island')
-            || scenery.find((feature) => feature.kind !== 'bridge');
-        if (dorothyIsland) {
-            dorothyIsland.kind = 'island';
-            dorothyIsland.size = Math.max(dorothyIsland.size, 0.95);
-            dorothyIsland.hasDorothy = true;
-            dorothyIsland.dorothyRescued = false;
-        }
-        scenery.forEach((feature) => addRandomRescuee(feature));
-        if (!scenery.some((feature) => feature.rescuee)) {
-            const island = scenery.find((feature) => feature.kind === 'island');
-            if (island) addRandomRescuee(island);
+        if (scenery.length === 0) {
+            const sceneryCount = Math.max(6, Math.ceil(arcadeHeight / 165) + 2);
+            scenery = Array.from({ length: sceneryCount }, (_, index) => ({
+                x: index % 5 === 2
+                    ? arcadeWidth / 2
+                    : index % 2 === 0
+                        ? arcadeWidth * (0.14 + Math.random() * 0.22)
+                        : arcadeWidth * (0.64 + Math.random() * 0.22),
+                y: (index / sceneryCount) * arcadeHeight,
+                size: 0.56 + Math.random() * 0.42,
+                kind: index % 5 === 2 ? 'bridge' : index % 3 === 0 ? 'island' : 'rocks',
+                seed: Math.random() * 10
+            }));
+            const dorothyIsland = scenery.find((feature) => feature.kind === 'island')
+                || scenery.find((feature) => feature.kind !== 'bridge');
+            if (dorothyIsland) {
+                dorothyIsland.kind = 'island';
+                dorothyIsland.y = -240;
+                dorothyIsland.size = Math.max(dorothyIsland.size, 0.95);
+                dorothyIsland.character = { key: 'dorothy', rescued: false };
+            }
+            scenery
+                .filter((feature) => feature.kind === 'island')
+                .sort((first, second) => Number(Boolean(second.character)) - Number(Boolean(first.character)))
+                .forEach((feature) => {
+                    const separatedX = findSeparatedIslandX(feature);
+                    if (separatedX === null && !feature.character) {
+                        feature.kind = 'rocks';
+                        return;
+                    }
+                    if (separatedX !== null) feature.x = separatedX;
+                });
+            scenery.forEach((feature) => addRandomRescuee(feature));
+            if (!scenery.some((feature) => feature.rescuee)) {
+                const island = scenery.find((feature) => feature.kind === 'island');
+                if (island) addRandomRescuee(island);
+            }
         }
         playerShip.x = Math.max(playerShip.width / 2, Math.min(playerShip.x || arcadeWidth / 2, arcadeWidth - playerShip.width / 2));
         playerShip.y = Math.max(arcadeHeight * 0.74, arcadeHeight - 52);
@@ -1607,28 +1761,43 @@
         arcadeContext.restore();
     }
 
-    function drawDorothyOnIsland(feature) {
+    function drawFeaturedCharacter(feature) {
+        const character = feature.character;
+        const details = character && featuredCharacters[character.key];
         if (
-            !feature.hasDorothy
-            || feature.dorothyRescued
-            || !dorothyIslandSprite.complete
-            || !dorothyIslandSprite.naturalWidth
+            !character
+            || character.rescued
+            || !details.image.complete
+            || !details.image.naturalWidth
         ) return;
         arcadeContext.save();
         arcadeContext.translate(feature.x, feature.y);
         arcadeContext.scale(feature.size, feature.size);
-        arcadeContext.drawImage(dorothyIslandSprite, -40, -56, 80, 80);
+        arcadeContext.drawImage(details.image, -80, -118, 160, 160);
+        arcadeContext.restore();
+    }
 
-        if (Math.hypot(playerShip.x - feature.x, playerShip.y - feature.y) > 420) {
-            arcadeContext.restore();
-            return;
-        }
+    function drawFeaturedCharacterSpeech(feature) {
+        const character = feature.character;
+        const details = character && featuredCharacters[character.key];
+        if (
+            !character
+            || character.rescued
+            || !details.image.complete
+            || !details.image.naturalWidth
+            || Math.hypot(playerShip.x - feature.x, playerShip.y - feature.y) > 420
+        ) return;
 
+        arcadeContext.save();
+        arcadeContext.translate(feature.x, feature.y);
+        arcadeContext.scale(feature.size, feature.size);
         arcadeContext.fillStyle = '#fff8df';
         arcadeContext.strokeStyle = '#263747';
         arcadeContext.lineWidth = 2;
+        const bubbleHeight = 12 + details.lines.length * 18;
+        const bubbleTop = -130 - bubbleHeight;
         arcadeContext.beginPath();
-        arcadeContext.roundRect(-112, -232, 224, 102, 10);
+        arcadeContext.roundRect(-112, bubbleTop, 224, bubbleHeight, 10);
         arcadeContext.moveTo(-22, -130);
         arcadeContext.lineTo(-14, -113);
         arcadeContext.lineTo(-6, -130);
@@ -1638,11 +1807,9 @@
         arcadeContext.fillStyle = '#172b3a';
         arcadeContext.font = 'bold 12px "Courier New", monospace';
         arcadeContext.textAlign = 'left';
-        arcadeContext.fillText('Dorothy Vaughan:', -98, -212);
-        arcadeContext.fillText('matemática,', -98, -194);
-        arcadeContext.fillText('programadora e', -98, -176);
-        arcadeContext.fillText('cientista da computação', -98, -158);
-        arcadeContext.fillText('que trabalhou na NASA.', -98, -140);
+        details.lines.forEach((line, index) => {
+            arcadeContext.fillText(line, -98, bubbleTop + 20 + index * 18);
+        });
         arcadeContext.restore();
     }
 
@@ -1797,7 +1964,7 @@
                 drawBridge(feature.x, feature.y, arcadeWidth * 0.82);
             }
             else drawIsland(feature.x, feature.y, feature.size, feature.seed, feature.kind === 'rocks');
-            drawDorothyOnIsland(feature);
+            drawFeaturedCharacter(feature);
             drawRescuee(feature);
         });
         const light = arcadeContext.createRadialGradient(arcadeWidth * 0.2, arcadeHeight * 0.2, 4, arcadeWidth * 0.2, arcadeHeight * 0.2, arcadeWidth * 0.8);
@@ -1906,6 +2073,7 @@
             arcadeContext.ellipse(shot.x, shot.y, 4, 7, 0, 0, Math.PI * 2);
             arcadeContext.fill();
         });
+        scenery.forEach(drawFeaturedCharacterSpeech);
     }
 
     function overlaps(shot, target) {
@@ -1946,6 +2114,7 @@
                 { x: playerShip.x - 10, y: playerShip.y - 20, width: 4, height: 12 },
                 { x: playerShip.x + 10, y: playerShip.y - 20, width: 4, height: 12 }
             );
+            playArcadeSound('playerShot');
             lastPlayerShot = timestamp;
         }
 
@@ -1964,6 +2133,7 @@
                         target
                     });
                 }
+                playArcadeSound('rocket');
                 lastPlayerMissile = timestamp;
             }
         }
@@ -1986,19 +2156,21 @@
         scenery.forEach((feature) => {
             feature.y += 70 * elapsed;
             if (
-                feature.hasDorothy
-                && !feature.dorothyRescued
+                feature.character
+                && !feature.character.rescued
                 && peopleRescued < rescueTargetCount
                 && Math.abs(playerShip.x - feature.x) < 42 * feature.size
                 && Math.abs(playerShip.y - (feature.y - 10 * feature.size)) < 44 * feature.size
             ) {
-                feature.dorothyRescued = true;
+                feature.character.rescued = true;
+                playRescueSound();
+                const characterName = featuredCharacters[feature.character.key].name;
                 peopleRescued++;
                 updateCombatStatus();
                 showCharacterSpeech(peopleRescued === rescueTargetCount
-                    ? 'Dorothy Vaughan resgatada! Todas as 20 heroínas foram salvas!'
-                    : 'Dorothy Vaughan resgatada!');
-                updateStatusMessage(`DOROTHY VAUGHAN RESGATADA · HEROÍNAS: ${peopleRescued}/${rescueTargetCount}`);
+                    ? `${characterName} resgatada! Todas as 20 heroínas foram salvas!`
+                    : `${characterName} resgatada!`);
+                updateStatusMessage(`${characterName.toUpperCase()} RESGATADA · HEROÍNAS: ${peopleRescued}/${rescueTargetCount}`);
             }
             if (
                 feature.kind === 'island'
@@ -2009,6 +2181,7 @@
                 && Math.abs(playerShip.y - (feature.y + feature.rescuee.y * feature.size)) < 30
             ) {
                 feature.rescuee.rescued = true;
+                playRescueSound();
                 peopleRescued++;
                 updateCombatStatus();
                 showCharacterSpeech(peopleRescued === rescueTargetCount
@@ -2018,18 +2191,54 @@
             }
             if (feature.y > arcadeHeight + 80) {
                 feature.y = -80;
+                const previousCharacter = feature.character;
+                feature.character = null;
+                if (previousCharacter?.key === 'feiFeiLi') {
+                    featuredCharactersPassed = true;
+                }
+                if (previousCharacter?.key === 'dorothy' && !christinaSpawned) {
+                    feature.character = { key: 'christina', rescued: false };
+                    christinaSpawned = true;
+                    feature.kind = 'island';
+                    feature.size = Math.max(feature.size, 0.95);
+                } else if (previousCharacter?.key === 'christina' && !feiFeiLiSpawned) {
+                    feature.character = { key: 'feiFeiLi', rescued: false };
+                    feiFeiLiSpawned = true;
+                    feature.kind = 'island';
+                    feature.size = Math.max(feature.size, 0.95);
+                }
                 const bridgeVisible = scenery.some((candidate) =>
                     candidate !== feature
                     && candidate.kind === 'bridge'
                     && candidate.y > -80
                     && candidate.y < arcadeHeight + 80
                 );
-                feature.kind = feature.hasDorothy
-                    ? 'island'
-                    : !bridgeVisible && Math.random() < 0.2
+                if (!feature.character) {
+                    feature.kind = !bridgeVisible && Math.random() < 0.2
                         ? 'bridge'
                         : Math.random() < 0.5 ? 'island' : 'rocks';
-                feature.x = feature.kind === 'bridge' ? arcadeWidth / 2 : Math.random() * arcadeWidth;
+                }
+                if (feature.kind === 'bridge') {
+                    feature.x = arcadeWidth / 2;
+                } else if (feature.kind === 'island') {
+                    let separatedX = findSeparatedIslandX(feature);
+                    if (separatedX === null && feature.character) {
+                        scenery.forEach((other) => {
+                            if (other !== feature && other.kind === 'island' && !other.character) {
+                                other.kind = 'rocks';
+                                other.rescuee = null;
+                            }
+                        });
+                        separatedX = findSeparatedIslandX(feature);
+                    }
+                    if (separatedX === null) {
+                        feature.kind = 'rocks';
+                    } else {
+                        feature.x = separatedX;
+                    }
+                } else {
+                    feature.x = Math.random() * arcadeWidth;
+                }
                 feature.seed = Math.random() * 10;
                 addRandomRescuee(feature);
             }
@@ -2060,6 +2269,7 @@
                     width: 4,
                     height: 14
                 });
+                playArcadeSound('enemyShot');
             }
             nextEnemyShot = timestamp + 750 + Math.random() * 700;
         }
@@ -2164,8 +2374,13 @@
         if (quizEnabled && (nextQuestionIndex < questionsPerRound || fuelLevel !== 100)) {
             throw new Error('Responda às quatro perguntas para liberar o jogo.');
         }
+        getGameAudioContext();
         arcadeCanvas.hidden = false;
         playerShip.x = 0;
+        christinaSpawned = false;
+        feiFeiLiSpawned = false;
+        featuredCharactersPassed = false;
+        scenery = [];
         resizeArcadeCanvas();
         enemyShips = [];
         playerShots = [];
@@ -2200,6 +2415,7 @@
     window.addEventListener('keydown', (event) => {
         if (!arcadeActive || !movementKeys.has(event.code)) return;
         event.preventDefault();
+        getGameAudioContext();
         pressedKeys.add(event.code);
     });
     window.addEventListener('keyup', (event) => pressedKeys.delete(event.code));
@@ -2209,6 +2425,7 @@
     });
     arcadeCanvas.addEventListener('pointerdown', (event) => {
         if (!arcadeActive) return;
+        getGameAudioContext();
         arcadeCanvas.setPointerCapture(event.pointerId);
         if (event.pointerType === 'mouse' && event.button === 0) mouseFiring = true;
         moveShipToPointer(event);
